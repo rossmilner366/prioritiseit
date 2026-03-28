@@ -14,6 +14,8 @@ export default function BoardView({ board, onUpdateBoard, onDeleteBoard, onBack 
   const [newTitle, setNewTitle] = useState('')
   const [editingName, setEditingName] = useState(false)
   const [boardName, setBoardName] = useState(board.name)
+  const [editingDesc, setEditingDesc] = useState(false)
+  const [boardDesc, setBoardDesc] = useState(board.description || '')
 
   const handleAddItem = async (e) => {
     e.preventDefault()
@@ -30,12 +32,20 @@ export default function BoardView({ board, onUpdateBoard, onDeleteBoard, onBack 
     setEditingName(false)
   }
 
+  const handleDescSave = () => {
+    const trimmed = boardDesc.trim()
+    if (trimmed !== (board.description || '')) {
+      onUpdateBoard({ description: trimmed || null })
+    }
+    setEditingDesc(false)
+  }
+
   return (
     <div className="p-6 lg:p-10">
       {/* Header */}
-      <div className="flex items-start justify-between mb-6">
+      <div className="flex items-start justify-between mb-2">
         <div className="flex items-center gap-3 min-w-0">
-          <button onClick={onBack} className="text-slate-500 hover:text-slate-300 transition-colors shrink-0">
+          <button onClick={onBack} className="text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors shrink-0">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" /></svg>
           </button>
           {editingName ? (
@@ -62,7 +72,6 @@ export default function BoardView({ board, onUpdateBoard, onDeleteBoard, onBack 
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          {/* Guide toggle */}
           {view === 'list' && (
             <button
               onClick={() => setShowGuide(!showGuide)}
@@ -75,12 +84,11 @@ export default function BoardView({ board, onUpdateBoard, onDeleteBoard, onBack 
             </button>
           )}
 
-          {/* View toggle */}
-          <div className="flex bg-white/[0.04] rounded-lg p-0.5">
+          <div className="flex bg-slate-100 dark:bg-white/[0.04] rounded-lg p-0.5">
             <button
               onClick={() => setView('list')}
               className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                view === 'list' ? 'bg-white/10 text-white' : 'text-slate-500 dark:text-slate-400 hover:text-slate-200'
+                view === 'list' ? 'bg-white dark:bg-white/10 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
               }`}
             >
               List
@@ -88,7 +96,7 @@ export default function BoardView({ board, onUpdateBoard, onDeleteBoard, onBack 
             <button
               onClick={() => setView('matrix')}
               className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                view === 'matrix' ? 'bg-white/10 text-white' : 'text-slate-500 dark:text-slate-400 hover:text-slate-200'
+                view === 'matrix' ? 'bg-white dark:bg-white/10 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
               }`}
             >
               Matrix
@@ -105,6 +113,36 @@ export default function BoardView({ board, onUpdateBoard, onDeleteBoard, onBack 
             Add item
           </button>
         </div>
+      </div>
+
+      {/* Board description */}
+      <div className="mb-5 ml-8">
+        {editingDesc ? (
+          <input
+            value={boardDesc}
+            onChange={(e) => setBoardDesc(e.target.value)}
+            onBlur={handleDescSave}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleDescSave()
+              if (e.key === 'Escape') { setBoardDesc(board.description || ''); setEditingDesc(false) }
+            }}
+            placeholder="Add a description for this board..."
+            className="w-full max-w-lg text-sm text-slate-600 dark:text-slate-400 bg-transparent border-b border-brand-400/40 outline-none pb-0.5 placeholder:text-slate-300 dark:placeholder:text-slate-600"
+            autoFocus
+          />
+        ) : (
+          <p
+            className={`text-sm cursor-pointer transition-colors max-w-lg ${
+              board.description
+                ? 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
+                : 'text-slate-300 dark:text-slate-600 hover:text-slate-400 dark:hover:text-slate-500 italic'
+            }`}
+            onClick={() => { setBoardDesc(board.description || ''); setEditingDesc(true) }}
+            title="Click to edit description"
+          >
+            {board.description || 'Add a description...'}
+          </p>
+        )}
       </div>
 
       {/* Add item form */}
@@ -140,7 +178,7 @@ export default function BoardView({ board, onUpdateBoard, onDeleteBoard, onBack 
           <button onClick={() => setShowAddItem(true)} className="btn-primary">Add first item</button>
         </div>
       ) : view === 'list' ? (
-        <div className={`flex gap-6 items-start ${showGuide ? '' : ''}`}>
+        <div className={`flex gap-6 items-start`}>
           <div className={`min-w-0 ${showGuide ? 'flex-1' : 'w-full'}`}>
             <ScoringTable
               items={items}
@@ -160,7 +198,7 @@ export default function BoardView({ board, onUpdateBoard, onDeleteBoard, onBack 
           )}
         </div>
       ) : (
-        <MatrixView items={items} />
+        <MatrixView items={items} boardName={board.name} />
       )}
 
       {showShare && (
