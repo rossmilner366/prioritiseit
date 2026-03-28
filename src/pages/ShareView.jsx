@@ -1,35 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceArea, ReferenceLine, Label } from 'recharts'
+import MatrixView from '../components/MatrixView'
 
 const STATUS_MAP = {
-  backlog: { label: 'Backlog', classes: 'bg-slate-500/10 text-slate-400' },
-  planned: { label: 'Planned', classes: 'bg-blue-500/10 text-blue-400' },
-  in_progress: { label: 'In progress', classes: 'bg-amber-500/10 text-amber-400' },
-  done: { label: 'Done', classes: 'bg-emerald-500/10 text-emerald-400' },
-}
-
-function ShareTooltip({ active, payload }) {
-  if (!active || !payload?.length) return null
-  const d = payload[0].payload
-  return (
-    <div className="bg-slate-900 border border-white/10 rounded-lg px-3 py-2 shadow-xl">
-      <p className="text-white text-sm font-medium">{d.title}</p>
-      <p className="text-xs text-slate-400 mt-0.5">Score: {Math.round(d.score)}</p>
-    </div>
-  )
-}
-
-function ShareDot(props) {
-  const { cx, cy, payload } = props
-  const initials = payload.title.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase()
-  return (
-    <g>
-      <circle cx={cx} cy={cy} r={16} fill="#2596BE" stroke="rgba(11,15,26,0.8)" strokeWidth={2} />
-      <text x={cx} y={cy} textAnchor="middle" dominantBaseline="central" fill="white" fontSize={9} fontWeight={500} fontFamily="DM Sans, system-ui">{initials}</text>
-    </g>
-  )
+  backlog: { label: 'Backlog', classes: 'bg-slate-100 text-slate-500 dark:bg-slate-500/10 dark:text-slate-400' },
+  planned: { label: 'Planned', classes: 'bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400' },
+  in_progress: { label: 'In progress', classes: 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400' },
+  done: { label: 'Done', classes: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400' },
 }
 
 export default function ShareView() {
@@ -39,6 +17,16 @@ export default function ShareView() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [view, setView] = useState('list')
+
+  // Share view respects system preference for dark/light
+  useEffect(() => {
+    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+    if (isDark) {
+      document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+    }
+  }, [])
 
   useEffect(() => {
     async function load() {
@@ -73,7 +61,7 @@ export default function ShareView() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-950">
         <div className="w-8 h-8 border-2 border-brand-400 border-t-transparent rounded-full animate-spin" />
       </div>
     )
@@ -81,23 +69,20 @@ export default function ShareView() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4">
+      <div className="min-h-screen flex items-center justify-center px-4 bg-gray-50 dark:bg-slate-950">
         <div className="text-center">
           <div className="w-14 h-14 mx-auto mb-4 bg-brand-400 rounded-2xl flex items-center justify-center">
             <span className="text-white text-xl font-bold">P</span>
           </div>
-          <h1 className="text-white font-medium mb-2">Board unavailable</h1>
-          <p className="text-slate-400 text-sm">{error}</p>
+          <h1 className="text-slate-900 dark:text-white font-medium mb-2">Board unavailable</h1>
+          <p className="text-slate-500 dark:text-slate-400 text-sm">{error}</p>
         </div>
       </div>
     )
   }
 
-  const maxEffort = Math.max(5, ...items.map(d => d.effort))
-  const maxImpact = Math.max(3, ...items.map(d => d.impact))
-
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-950">
       {/* Header */}
       <div className="bg-gradient-to-b from-brand-400 to-brand-500 px-6 py-8 lg:px-10">
         <div className="max-w-3xl mx-auto">
@@ -124,11 +109,13 @@ export default function ShareView() {
       <div className="max-w-3xl mx-auto px-6 lg:px-10 py-8">
         {/* View toggle */}
         <div className="flex justify-center mb-6">
-          <div className="flex bg-white/[0.04] rounded-lg p-0.5">
+          <div className="flex bg-slate-100 dark:bg-white/[0.04] rounded-lg p-0.5">
             <button
               onClick={() => setView('list')}
               className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                view === 'list' ? 'bg-white/10 text-white' : 'text-slate-400 hover:text-slate-200'
+                view === 'list'
+                  ? 'bg-white dark:bg-white/10 text-slate-900 dark:text-white shadow-sm'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
               }`}
             >
               Ranked list
@@ -136,7 +123,9 @@ export default function ShareView() {
             <button
               onClick={() => setView('matrix')}
               className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                view === 'matrix' ? 'bg-white/10 text-white' : 'text-slate-400 hover:text-slate-200'
+                view === 'matrix'
+                  ? 'bg-white dark:bg-white/10 text-slate-900 dark:text-white shadow-sm'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
               }`}
             >
               Impact / effort matrix
@@ -151,7 +140,7 @@ export default function ShareView() {
               const score = item.score != null ? Math.round(item.score * 10) / 10 : 0
               return (
                 <div key={item.id} className="card p-4 flex items-center gap-4">
-                  <div className="w-8 h-8 rounded-full bg-white/[0.04] flex items-center justify-center text-sm font-medium text-slate-400 shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-white/[0.04] flex items-center justify-center text-sm font-medium text-slate-500 dark:text-slate-400 shrink-0">
                     {idx + 1}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -161,52 +150,39 @@ export default function ShareView() {
                           <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>
                         </span>
                       )}
-                      <span className="text-white font-medium text-sm truncate">{item.title}</span>
+                      <span className="text-slate-900 dark:text-white font-medium text-sm truncate">{item.title}</span>
+                      {item.link_url && (
+                        <a
+                          href={item.link_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-brand-400 hover:text-brand-500 shrink-0"
+                          title="View linked resource"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                          </svg>
+                        </a>
+                      )}
                     </div>
                     {item.description && (
                       <p className="text-slate-400 text-xs mt-0.5 truncate">{item.description}</p>
                     )}
                   </div>
                   <span className={`badge ${st.classes} shrink-0`}>{st.label}</span>
-                  <span className="text-sm font-mono text-slate-400 w-12 text-right shrink-0">{score}</span>
+                  <span className="text-sm font-mono text-slate-500 dark:text-slate-400 w-12 text-right shrink-0">{score}</span>
                 </div>
               )
             })}
           </div>
         ) : (
-          <div className="card p-6">
-            <ResponsiveContainer width="100%" height={380}>
-              <ScatterChart margin={{ top: 20, right: 20, bottom: 30, left: 10 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
-                <ReferenceArea x1={0} x2={maxEffort / 2} y1={maxImpact / 2} y2={maxImpact} fill="rgba(16,185,129,0.06)" />
-                <ReferenceArea x1={maxEffort / 2} x2={maxEffort} y1={maxImpact / 2} y2={maxImpact} fill="rgba(59,130,246,0.06)" />
-                <ReferenceArea x1={0} x2={maxEffort / 2} y1={0} y2={maxImpact / 2} fill="rgba(255,255,255,0.02)" />
-                <ReferenceArea x1={maxEffort / 2} x2={maxEffort} y1={0} y2={maxImpact / 2} fill="rgba(239,68,68,0.06)" />
-                <ReferenceLine x={maxEffort / 2} stroke="rgba(255,255,255,0.08)" strokeDasharray="4 4" />
-                <ReferenceLine y={maxImpact / 2} stroke="rgba(255,255,255,0.08)" strokeDasharray="4 4" />
-                <XAxis dataKey="effort" type="number" domain={[0, maxEffort]} tick={{ fill: '#64748b', fontSize: 11 }} axisLine={{ stroke: 'rgba(255,255,255,0.08)' }} tickLine={false}>
-                  <Label value="Effort →" position="insideBottom" offset={-15} style={{ fill: '#64748b', fontSize: 12 }} />
-                </XAxis>
-                <YAxis dataKey="impact" type="number" domain={[0, maxImpact]} tick={{ fill: '#64748b', fontSize: 11 }} axisLine={{ stroke: 'rgba(255,255,255,0.08)' }} tickLine={false}>
-                  <Label value="Impact →" angle={-90} position="insideLeft" offset={5} style={{ fill: '#64748b', fontSize: 12 }} />
-                </YAxis>
-                <Tooltip content={<ShareTooltip />} cursor={false} />
-                <Scatter data={items} shape={<ShareDot />} />
-              </ScatterChart>
-            </ResponsiveContainer>
-            <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
-              {items.map(item => {
-                const initials = item.title.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase()
-                return <span key={item.id}><span className="text-brand-400 font-mono">{initials}</span> = {item.title}</span>
-              })}
-            </div>
-          </div>
+          <MatrixView items={items} />
         )}
 
         {/* Footer */}
         <div className="mt-8 text-center">
-          <p className="text-slate-600 text-xs">
-            Powered by <span className="text-brand-400">PrioritiseIt</span> — feature prioritisation for product teams
+          <p className="text-slate-400 dark:text-slate-600 text-xs">
+            Powered by <span className="text-brand-500 dark:text-brand-400">PrioritiseIt</span> — feature prioritisation for product teams
           </p>
         </div>
       </div>

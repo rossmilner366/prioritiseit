@@ -1,19 +1,19 @@
 import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceArea, ReferenceLine, Label } from 'recharts'
 
-const QUADRANT_COLORS = {
-  quickWins: 'rgba(16, 185, 129, 0.06)',
-  bigBets: 'rgba(59, 130, 246, 0.06)',
-  fillIns: 'rgba(255, 255, 255, 0.02)',
-  avoid: 'rgba(239, 68, 68, 0.06)',
-}
+const QUADRANTS = [
+  { key: 'quickWins', label: 'Quick wins', subtitle: 'High impact, low effort', light: 'rgba(16, 185, 129, 0.15)', dark: 'rgba(16, 185, 129, 0.12)', swatchLight: '#d1fae5', swatchDark: 'rgba(16, 185, 129, 0.35)', textClass: 'text-emerald-700 dark:text-emerald-400' },
+  { key: 'bigBets', label: 'Big bets', subtitle: 'High impact, high effort', light: 'rgba(59, 130, 246, 0.12)', dark: 'rgba(59, 130, 246, 0.10)', swatchLight: '#dbeafe', swatchDark: 'rgba(59, 130, 246, 0.35)', textClass: 'text-blue-700 dark:text-blue-400' },
+  { key: 'fillIns', label: 'Fill-ins', subtitle: 'Low impact, low effort', light: 'rgba(148, 163, 184, 0.08)', dark: 'rgba(255, 255, 255, 0.04)', swatchLight: '#f1f5f9', swatchDark: 'rgba(255, 255, 255, 0.10)', textClass: 'text-slate-500 dark:text-slate-400' },
+  { key: 'avoid', label: 'Avoid', subtitle: 'Low impact, high effort', light: 'rgba(239, 68, 68, 0.12)', dark: 'rgba(239, 68, 68, 0.10)', swatchLight: '#fee2e2', swatchDark: 'rgba(239, 68, 68, 0.35)', textClass: 'text-red-700 dark:text-red-400' },
+]
 
-function CustomTooltip({ active, payload }) {
+function MatrixTooltip({ active, payload }) {
   if (!active || !payload?.length) return null
   const d = payload[0].payload
   return (
-    <div className="bg-slate-900 border border-white/10 rounded-lg px-3 py-2 shadow-xl">
-      <p className="text-white text-sm font-medium mb-1">{d.title}</p>
-      <div className="flex gap-3 text-xs text-slate-400">
+    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-lg px-3 py-2 shadow-xl">
+      <p className="text-slate-900 dark:text-white text-sm font-medium mb-1">{d.title}</p>
+      <div className="flex gap-3 text-xs text-slate-500 dark:text-slate-400">
         <span>Impact: {d.impact}</span>
         <span>Effort: {d.effort}</span>
         <span>Score: {Math.round(d.score)}</span>
@@ -22,7 +22,7 @@ function CustomTooltip({ active, payload }) {
   )
 }
 
-function CustomDot(props) {
+function MatrixDot(props) {
   const { cx, cy, payload } = props
   const initials = payload.title
     .split(' ')
@@ -33,7 +33,7 @@ function CustomDot(props) {
 
   return (
     <g>
-      <circle cx={cx} cy={cy} r={18} fill="#2596BE" stroke="rgba(11, 15, 26, 0.8)" strokeWidth={2.5} />
+      <circle cx={cx} cy={cy} r={18} fill="#2596BE" stroke="white" strokeWidth={2.5} />
       <text x={cx} y={cy} textAnchor="middle" dominantBaseline="central" fill="white" fontSize={10} fontWeight={500} fontFamily="DM Sans, system-ui">
         {initials}
       </text>
@@ -41,7 +41,14 @@ function CustomDot(props) {
   )
 }
 
+function useIsDark() {
+  if (typeof document === 'undefined') return false
+  return document.documentElement.classList.contains('dark')
+}
+
 export default function MatrixView({ items }) {
+  const isDark = useIsDark()
+
   const data = items.map(item => ({
     ...item,
     effort: item.effort,
@@ -53,75 +60,83 @@ export default function MatrixView({ items }) {
   const midEffort = maxEffort / 2
   const midImpact = maxImpact / 2
 
+  const q = (key) => {
+    const quad = QUADRANTS.find(q => q.key === key)
+    return isDark ? quad.dark : quad.light
+  }
+
+  const gridStroke = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'
+  const dividerStroke = isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.10)'
+  const axisStroke = isDark ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.08)'
+
   return (
     <div className="card p-6">
-      <div className="flex flex-wrap gap-4 mb-6 text-xs">
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded-sm" style={{ background: 'rgba(16, 185, 129, 0.25)' }} />
-          <span className="text-slate-400">Quick wins</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded-sm" style={{ background: 'rgba(59, 130, 246, 0.25)' }} />
-          <span className="text-slate-400">Big bets</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded-sm" style={{ background: 'rgba(255, 255, 255, 0.08)' }} />
-          <span className="text-slate-400">Fill-ins</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded-sm" style={{ background: 'rgba(239, 68, 68, 0.25)' }} />
-          <span className="text-slate-400">Avoid</span>
-        </div>
+      {/* Quadrant key */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+        {QUADRANTS.map(quad => (
+          <div
+            key={quad.key}
+            className="flex items-center gap-2.5 px-3 py-2 rounded-lg border border-slate-100 dark:border-white/[0.06]"
+            style={{ background: isDark ? quad.swatchDark : quad.swatchLight }}
+          >
+            <div className="min-w-0">
+              <p className={`text-sm font-medium ${quad.textClass}`}>{quad.label}</p>
+              <p className="text-xs text-slate-400 dark:text-slate-500 truncate">{quad.subtitle}</p>
+            </div>
+          </div>
+        ))}
       </div>
 
       <ResponsiveContainer width="100%" height={400}>
         <ScatterChart margin={{ top: 20, right: 20, bottom: 30, left: 10 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+          <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
 
-          {/* Quadrant backgrounds */}
-          <ReferenceArea x1={0} x2={midEffort} y1={midImpact} y2={maxImpact} fill={QUADRANT_COLORS.quickWins} />
-          <ReferenceArea x1={midEffort} x2={maxEffort} y1={midImpact} y2={maxImpact} fill={QUADRANT_COLORS.bigBets} />
-          <ReferenceArea x1={0} x2={midEffort} y1={0} y2={midImpact} fill={QUADRANT_COLORS.fillIns} />
-          <ReferenceArea x1={midEffort} x2={maxEffort} y1={0} y2={midImpact} fill={QUADRANT_COLORS.avoid} />
+          <ReferenceArea x1={0} x2={midEffort} y1={midImpact} y2={maxImpact} fill={q('quickWins')} />
+          <ReferenceArea x1={midEffort} x2={maxEffort} y1={midImpact} y2={maxImpact} fill={q('bigBets')} />
+          <ReferenceArea x1={0} x2={midEffort} y1={0} y2={midImpact} fill={q('fillIns')} />
+          <ReferenceArea x1={midEffort} x2={maxEffort} y1={0} y2={midImpact} fill={q('avoid')} />
 
-          <ReferenceLine x={midEffort} stroke="rgba(255,255,255,0.08)" strokeDasharray="4 4" />
-          <ReferenceLine y={midImpact} stroke="rgba(255,255,255,0.08)" strokeDasharray="4 4" />
+          <ReferenceLine x={midEffort} stroke={dividerStroke} strokeDasharray="6 4" strokeWidth={1.5} />
+          <ReferenceLine y={midImpact} stroke={dividerStroke} strokeDasharray="6 4" strokeWidth={1.5} />
 
           <XAxis
             dataKey="effort"
             type="number"
             domain={[0, maxEffort]}
-            tick={{ fill: '#64748b', fontSize: 11 }}
-            axisLine={{ stroke: 'rgba(255,255,255,0.08)' }}
+            tick={{ fill: '#64748b', fontSize: 12 }}
+            axisLine={{ stroke: axisStroke }}
             tickLine={false}
           >
-            <Label value="Effort →" position="insideBottom" offset={-15} style={{ fill: '#64748b', fontSize: 12 }} />
+            <Label value="Effort →" position="insideBottom" offset={-15} style={{ fill: '#64748b', fontSize: 13, fontWeight: 500 }} />
           </XAxis>
           <YAxis
             dataKey="impact"
             type="number"
             domain={[0, maxImpact]}
-            tick={{ fill: '#64748b', fontSize: 11 }}
-            axisLine={{ stroke: 'rgba(255,255,255,0.08)' }}
+            tick={{ fill: '#64748b', fontSize: 12 }}
+            axisLine={{ stroke: axisStroke }}
             tickLine={false}
           >
-            <Label value="Impact →" angle={-90} position="insideLeft" offset={5} style={{ fill: '#64748b', fontSize: 12 }} />
+            <Label value="Impact →" angle={-90} position="insideLeft" offset={5} style={{ fill: '#64748b', fontSize: 13, fontWeight: 500 }} />
           </YAxis>
-          <Tooltip content={<CustomTooltip />} cursor={false} />
-          <Scatter data={data} shape={<CustomDot />} />
+          <Tooltip content={<MatrixTooltip />} cursor={false} />
+          <Scatter data={data} shape={<MatrixDot />} />
         </ScatterChart>
       </ResponsiveContainer>
 
-      {/* Legend */}
-      <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
-        {items.map(item => {
-          const initials = item.title.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase()
-          return (
-            <span key={item.id}>
-              <span className="text-brand-400 font-mono">{initials}</span> = {item.title}
-            </span>
-          )
-        })}
+      {/* Item legend */}
+      <div className="mt-5 pt-4 border-t border-slate-100 dark:border-white/[0.06]">
+        <p className="text-xs text-slate-400 dark:text-slate-500 mb-2 font-medium uppercase tracking-wider">Items</p>
+        <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-sm">
+          {items.map(item => {
+            const initials = item.title.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase()
+            return (
+              <span key={item.id} className="text-slate-500 dark:text-slate-400">
+                <span className="text-brand-500 dark:text-brand-400 font-mono font-medium">{initials}</span> {item.title}
+              </span>
+            )
+          })}
+        </div>
       </div>
     </div>
   )
