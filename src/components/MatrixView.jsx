@@ -7,16 +7,64 @@ const QUADRANTS = [
   { key: 'avoid', label: 'Avoid', subtitle: 'Low impact, high effort', light: 'rgba(239, 68, 68, 0.12)', dark: 'rgba(239, 68, 68, 0.10)', swatchLight: '#fee2e2', swatchDark: 'rgba(239, 68, 68, 0.35)', textClass: 'text-red-700 dark:text-red-400' },
 ]
 
+// Spread items that share exact or near-identical coordinates
+function jitterOverlaps(items, effortRange, impactRange) {
+  const THRESHOLD_E = effortRange * 0.04
+  const THRESHOLD_I = impactRange * 0.04
+  const JITTER_E = effortRange * 0.06
+  const JITTER_I = impactRange * 0.06
+
+  const result = items.map(item => ({
+    ...item,
+    _effort: item.effort,
+    _impact: item.impact,
+  }))
+
+  // Find clusters
+  const placed = []
+  for (const item of result) {
+    const overlaps = placed.filter(p =>
+      Math.abs(p._effort - item._effort) < THRESHOLD_E &&
+      Math.abs(p._impact - item._impact) < THRESHOLD_I
+    )
+    if (overlaps.length > 0) {
+      const count = overlaps.length + 1
+      const angle = (overlaps.length / count) * 2 * Math.PI
+      item._effort = item.effort + Math.cos(angle) * JITTER_E
+      item._impact = item.impact + Math.sin(angle) * JITTER_I
+
+      // Also nudge the first one if it hasn't been nudged yet
+      if (overlaps.length === 1 && overlaps[0]._effort === overlaps[0].effort && overlaps[0]._impact === overlaps[0].impact) {
+        const firstAngle = 0
+        overlaps[0]._effort = overlaps[0].effort + Math.cos(firstAngle) * JITTER_E
+        overlaps[0]._impact = overlaps[0].impact + Math.sin(firstAngle) * JITTER_I
+      }
+    }
+    placed.push(item)
+  }
+
+  return result
+}
+
 function MatrixTooltip({ active, payload }) {
   if (!active || !payload?.length) return null
   const d = payload[0].payload
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-lg px-3 py-2 shadow-xl">
-      <p className="text-slate-900 dark:text-white text-sm font-medium mb-1">{d.title}</p>
-      <div className="flex gap-3 text-xs text-slate-500 dark:text-slate-400">
-        <span>Impact: {d.impact}</span>
-        <span>Effort: {d.effort}</span>
-        <span>Score: {Math.round(d.score)}</span>
+    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-lg px-3 py-2.5 shadow-xl max-w-[220px]">
+      <p className="text-slate-900 dark:text-white text-sm font-medium mb-1.5">{d.title}</p>
+      <div className="grid grid-cols-3 gap-2 text-xs">
+        <div>
+          <p className="text-slate-400 dark:text-slate-500">Impact</p>
+          <p className="text-slate-700 dark:text-slate-300 font-medium">{d.impact}</p>
+        </div>
+        <div>
+          <p className="text-slate-400 dark:text-slate-500">Effort</p>
+          <p className="text-slate-700 dark:text-slate-300 font-medium">{d.effort}</p>
+        </div>
+        <div>
+          <p className="text-slate-400 dark:text-slate-500">Score</p>
+          <p className="text-slate-700 dark:text-slate-300 font-medium">{Math.round(d.score)}</p>
+        </div>
       </div>
     </div>
   )
@@ -32,9 +80,9 @@ function MatrixDot(props) {
     .toUpperCase()
 
   return (
-    <g>
-      <circle cx={cx} cy={cy} r={18} fill="#2596BE" stroke="white" strokeWidth={2.5} />
-      <text x={cx} y={cy} textAnchor="middle" dominantBaseline="central" fill="white" fontSize={10} fontWeight={500} fontFamily="DM Sans, system-ui">
+    <g style={{ cursor: 'pointer' }}>
+      <circle cx={cx} cy={cy} r={20} fill="#2596BE" stroke="white" strokeWidth={2.5} />
+      <text x={cx} y={cy} textAnchor="middle" dominantBaseline="central" fill="white" fontSize={11} fontWeight={500} fontFamily="DM Sans, system-ui">
         {initials}
       </text>
     </g>
@@ -49,16 +97,12 @@ function useIsDark() {
 export default function MatrixView({ items }) {
   const isDark = useIsDark()
 
-  const data = items.map(item => ({
-    ...item,
-    effort: item.effort,
-    impact: item.impact,
-  }))
-
-  const maxEffort = Math.max(5, ...data.map(d => d.effort))
-  const maxImpact = Math.max(3, ...data.map(d => d.impact))
+  const maxEffort = Math.max(5, ...items.map(d => d.effort))
+  const maxImpact = Math.max(3, ...items.map(d => d.impact))
   const midEffort = maxEffort / 2
   const midImpact = maxImpact / 2
+
+  const data = jitterOverlaps(items, maxEffort, maxImpact)
 
   const q = (key) => {
     const quad = QUADRANTS.find(q => q.key === key)
@@ -87,8 +131,8 @@ export default function MatrixView({ items }) {
         ))}
       </div>
 
-      <ResponsiveContainer width="100%" height={400}>
-        <ScatterChart margin={{ top: 20, right: 20, bottom: 30, left: 10 }}>
+      <ResponsiveContainer width="100%" height={420}>
+        <ScatterChart margin={{ top: 20, right: 30, bottom: 30, left: 10 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
 
           <ReferenceArea x1={0} x2={midEffort} y1={midImpact} y2={maxImpact} fill={q('quickWins')} />
@@ -100,7 +144,7 @@ export default function MatrixView({ items }) {
           <ReferenceLine y={midImpact} stroke={dividerStroke} strokeDasharray="6 4" strokeWidth={1.5} />
 
           <XAxis
-            dataKey="effort"
+            dataKey="_effort"
             type="number"
             domain={[0, maxEffort]}
             tick={{ fill: '#64748b', fontSize: 12 }}
@@ -110,7 +154,7 @@ export default function MatrixView({ items }) {
             <Label value="Effort →" position="insideBottom" offset={-15} style={{ fill: '#64748b', fontSize: 13, fontWeight: 500 }} />
           </XAxis>
           <YAxis
-            dataKey="impact"
+            dataKey="_impact"
             type="number"
             domain={[0, maxImpact]}
             tick={{ fill: '#64748b', fontSize: 12 }}
