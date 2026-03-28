@@ -17,7 +17,7 @@ function ThemeToggle({ theme, toggleTheme }) {
   )
 }
 
-export default function Sidebar({ boards, activeBoardId, onSelectBoard, onGoHome, onSignOut, userEmail, theme, toggleTheme }) {
+export default function Sidebar({ boards, sharedBoards, activeBoardId, onSelectBoard, onGoHome, onSignOut, userEmail, theme, toggleTheme }) {
   const [collapsed, setCollapsed] = useState(false)
 
   if (collapsed) {
