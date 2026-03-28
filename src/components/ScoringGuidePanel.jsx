@@ -87,9 +87,61 @@ const ICE_GUIDE = [
   },
 ]
 
+const WSJF_GUIDE = [
+  {
+    key: 'reach', label: 'User/Business Value',
+    question: 'How much value does this deliver to users or the business?',
+    scale: '1–10',
+    levels: [
+      { range: '8–10', label: 'Critical', desc: 'Core to user journey or revenue; major pain if absent', color: 'text-emerald-600 dark:text-emerald-400' },
+      { range: '5–7', label: 'High', desc: 'Clear improvement to outcomes users care about', color: 'text-amber-600 dark:text-amber-400' },
+      { range: '2–4', label: 'Moderate', desc: 'Helpful but not central to the core experience', color: 'text-amber-600 dark:text-amber-400' },
+      { range: '1', label: 'Low', desc: 'Nice to have; minimal user or business impact', color: 'text-red-600 dark:text-red-400' },
+    ],
+    tip: 'Think about revenue impact, retention, NPS, and support volume reduction. Compare relative to other items on the board.',
+  },
+  {
+    key: 'impact', label: 'Time Criticality',
+    question: 'How urgent is this — does value decay if we delay?',
+    scale: '1–10',
+    levels: [
+      { range: '8–10', label: 'Now or never', desc: 'Regulatory deadline, competitor launch, or expiring opportunity', color: 'text-emerald-600 dark:text-emerald-400' },
+      { range: '5–7', label: 'Soon', desc: 'Grows more costly or less effective with delay', color: 'text-amber-600 dark:text-amber-400' },
+      { range: '2–4', label: 'Flexible', desc: 'Can wait a quarter without meaningful cost', color: 'text-amber-600 dark:text-amber-400' },
+      { range: '1', label: 'Evergreen', desc: 'No time sensitivity — equally valuable later', color: 'text-red-600 dark:text-red-400' },
+    ],
+    tip: 'Ask: what happens if we ship this 3 months later? If the answer is "nothing", time criticality is low.',
+  },
+  {
+    key: 'confidence', label: 'Risk Reduction / OE',
+    question: 'Does this reduce risk or unlock future opportunities?',
+    scale: '1–10',
+    levels: [
+      { range: '8–10', label: 'Unblocks critical work', desc: 'Removes a blocker or de-risks a major dependency', color: 'text-emerald-600 dark:text-emerald-400' },
+      { range: '5–7', label: 'Enables options', desc: 'Opens up future features or reduces architectural risk', color: 'text-amber-600 dark:text-amber-400' },
+      { range: '2–4', label: 'Marginal', desc: 'Small risk reduction or optional enablement', color: 'text-amber-600 dark:text-amber-400' },
+      { range: '1', label: 'None', desc: 'Standalone item with no knock-on effects', color: 'text-red-600 dark:text-red-400' },
+    ],
+    tip: 'Foundation work, API contracts, and security patches often score high here even when business value alone looks low.',
+  },
+  {
+    key: 'effort', label: 'Job Size',
+    question: 'How big is the job — relative effort to deliver?',
+    scale: '1–10',
+    levels: [
+      { range: '1–2', label: 'Tiny', desc: 'Hours to a few days', color: 'text-emerald-600 dark:text-emerald-400' },
+      { range: '3–4', label: 'Small', desc: '1–2 weeks of work', color: 'text-emerald-600 dark:text-emerald-400' },
+      { range: '5–6', label: 'Medium', desc: '3–5 weeks, needs cross-functional effort', color: 'text-amber-600 dark:text-amber-400' },
+      { range: '7–8', label: 'Large', desc: '6–10 weeks, multiple teams', color: 'text-red-600 dark:text-red-400' },
+      { range: '9–10', label: 'Epic', desc: 'Quarter-scale initiative', color: 'text-red-600 dark:text-red-400' },
+    ],
+    tip: 'Unlike ICE Ease, larger job size lowers the WSJF score. Smaller, focused work that delivers similar value ranks higher.',
+  },
+]
+
 export default function ScoringGuidePanel({ scoringModel, onClose }) {
-  const factors = scoringModel === 'rice' ? RICE_GUIDE : ICE_GUIDE
-  const formula = scoringModel === 'rice' ? '(R × I × C) ÷ E' : 'I × C × E'
+  const factors = scoringModel === 'rice' ? RICE_GUIDE : scoringModel === 'wsjf' ? WSJF_GUIDE : ICE_GUIDE
+  const formula = scoringModel === 'rice' ? '(R × I × C) ÷ E' : scoringModel === 'wsjf' ? '(Value + Urgency + Risk) ÷ Job Size' : 'I × C × E'
 
   return (
     <div className="card overflow-hidden">
@@ -140,7 +192,9 @@ export default function ScoringGuidePanel({ scoringModel, onClose }) {
         <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
           {scoringModel === 'rice'
             ? 'Higher scores = higher priority. High reach and impact with low effort rise to the top. Low confidence penalises speculation — validate first.'
-            : 'Higher scores = higher priority. ICE is faster than RICE — ideal for rapid triage when you don\'t have detailed reach data.'
+            : scoringModel === 'wsjf'
+              ? 'Higher scores = higher priority. WSJF surfaces work with high cost of delay relative to its size — commonly used in SAFe and agile-at-scale programmes.'
+              : 'Higher scores = higher priority. ICE is faster than RICE — ideal for rapid triage when you don\'t have detailed reach data.'
           }
         </p>
       </div>

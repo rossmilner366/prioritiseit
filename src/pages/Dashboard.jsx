@@ -60,6 +60,7 @@ export default function Dashboard({ boards, loading, onCreateBoard, onSelectBoar
             >
               <option value="rice">RICE</option>
               <option value="ice">ICE</option>
+              <option value="wsjf">WSJF</option>
             </select>
             <div className="flex gap-2">
               <button type="submit" disabled={creating} className="btn-primary">

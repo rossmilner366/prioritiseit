@@ -23,16 +23,18 @@ export function useItems(boardId) {
 
   useEffect(() => { fetchItems() }, [fetchItems])
 
-  const addItem = useCallback(async (title) => {
+  const addItem = useCallback(async (title, scoringModel = 'rice') => {
+    const defaults = scoringModel === 'wsjf'
+      ? { reach: 5, impact: 5, confidence: 5, effort: 5 }
+      : scoringModel === 'ice'
+        ? { reach: 0, impact: 5, confidence: 5, effort: 5 }
+        : { reach: 50, impact: 2, confidence: 2, effort: 3 }
     const { data, error } = await supabase
       .from('items')
       .insert({
         board_id: boardId,
         title,
-        reach: 50,
-        impact: 2,
-        confidence: 2,
-        effort: 3,
+        ...defaults,
         status: 'backlog'
       })
       .select()

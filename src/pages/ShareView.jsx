@@ -68,7 +68,13 @@ export default function ShareView() {
         .order('manual_rank', { ascending: true, nullsFirst: false })
         .order('score', { ascending: false })
 
-      setItems(itemData || [])
+      const processedItems = b.scoring_model === 'wsjf'
+        ? (itemData || []).map(item => ({
+            ...item,
+            score: item.effort > 0 ? (item.reach + item.impact + item.confidence) / item.effort : 0,
+          }))
+        : (itemData || [])
+      setItems(processedItems)
       setLoading(false)
     }
     load()

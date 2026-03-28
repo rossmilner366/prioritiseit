@@ -6,7 +6,13 @@ import MatrixView from '../components/MatrixView'
 import ShareModal from '../components/ShareModal'
 
 export default function BoardView({ board, onUpdateBoard, onDeleteBoard, onBack }) {
-  const { items, loading, addItem, updateItem, deleteItem, reorderItems } = useItems(board.id)
+  const { items: rawItems, loading, addItem, updateItem, deleteItem, reorderItems } = useItems(board.id)
+  const items = board.scoring_model === 'wsjf'
+    ? rawItems.map(item => ({
+        ...item,
+        score: item.effort > 0 ? (item.reach + item.impact + item.confidence) / item.effort : 0,
+      }))
+    : rawItems
   const [view, setView] = useState('list')
   const [showShare, setShowShare] = useState(false)
   const [showAddItem, setShowAddItem] = useState(false)
@@ -23,7 +29,7 @@ export default function BoardView({ board, onUpdateBoard, onDeleteBoard, onBack 
   const handleAddItem = async (e) => {
     e.preventDefault()
     if (!newTitle.trim()) return
-    await addItem(newTitle.trim())
+    await addItem(newTitle.trim(), board.scoring_model)
     setNewTitle('')
     setShowAddItem(false)
   }

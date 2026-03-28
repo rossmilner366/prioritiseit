@@ -24,7 +24,12 @@ const STATUS_OPTIONS = [
   { value: 'done', label: 'Done', classes: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400' },
 ]
 
-function getScoreColor(score) {
+function getScoreColor(score, scoringModel) {
+  if (scoringModel === 'wsjf') {
+    if (score >= 15) return 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400'
+    if (score >= 7) return 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400'
+    return 'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400'
+  }
   if (score >= 150) return 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400'
   if (score >= 60) return 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400'
   return 'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400'
@@ -181,17 +186,22 @@ function SortableRow({ item, scoringModel, midEffort, midImpact, onUpdate, onDel
           <InlineNumber value={item.reach} min={0} max={100} onChange={(v) => onUpdate(item.id, { reach: v })} />
         </td>
       )}
+      {scoringModel === 'wsjf' && (
+        <td className="py-3 px-1">
+          <InlineNumber value={item.reach} min={1} max={10} onChange={(v) => onUpdate(item.id, { reach: v })} />
+        </td>
+      )}
       <td className="py-3 px-1">
-        <InlineNumber value={item.impact} min={1} max={scoringModel === 'ice' ? 10 : 3} onChange={(v) => onUpdate(item.id, { impact: v })} />
+        <InlineNumber value={item.impact} min={1} max={scoringModel === 'rice' ? 3 : 10} onChange={(v) => onUpdate(item.id, { impact: v })} />
       </td>
       <td className="py-3 px-1">
-        <InlineNumber value={item.confidence} min={1} max={scoringModel === 'ice' ? 10 : 3} onChange={(v) => onUpdate(item.id, { confidence: v })} />
+        <InlineNumber value={item.confidence} min={1} max={scoringModel === 'rice' ? 3 : 10} onChange={(v) => onUpdate(item.id, { confidence: v })} />
       </td>
       <td className="py-3 px-1">
-        <InlineNumber value={item.effort} min={1} max={scoringModel === 'ice' ? 10 : 5} onChange={(v) => onUpdate(item.id, { effort: v })} />
+        <InlineNumber value={item.effort} min={1} max={scoringModel === 'rice' ? 5 : 10} onChange={(v) => onUpdate(item.id, { effort: v })} />
       </td>
       <td className="py-3 px-2">
-        <span className={`score-pill text-sm ${getScoreColor(score)}`}>{score}</span>
+        <span className={`score-pill text-sm ${getScoreColor(score, scoringModel)}`}>{score}</span>
       </td>
       <td className="py-3 px-2">
         <span className={`badge text-xs ${quadrant.classes}`}>{quadrant.label}</span>
@@ -276,12 +286,17 @@ export default function ScoringTable({ items, scoringModel, onUpdateItem, onDele
     const isDark = document.documentElement.classList.contains('dark')
     const scale = 2
     const isRice = scoringModel === 'rice'
+    const isWsjf = scoringModel === 'wsjf'
     const cols = isRice
       ? ['#', 'Feature', 'Reach', 'Impact', 'Conf.', 'Effort', 'Score', 'Status']
-      : ['#', 'Feature', 'Impact', 'Conf.', 'Ease', 'Score', 'Status']
+      : isWsjf
+        ? ['#', 'Feature', 'Value', 'Urgency', 'Risk', 'Size', 'Score', 'Status']
+        : ['#', 'Feature', 'Impact', 'Conf.', 'Ease', 'Score', 'Status']
     const colWidths = isRice
       ? [40, 280, 70, 70, 70, 70, 80, 100]
-      : [40, 320, 80, 80, 80, 80, 100]
+      : isWsjf
+        ? [40, 260, 70, 70, 70, 70, 80, 100]
+        : [40, 320, 80, 80, 80, 80, 100]
     const tableWidth = colWidths.reduce((a, b) => a + b, 0)
     const rowH = 40
     const headerH = 44
@@ -353,7 +368,9 @@ export default function ScoringTable({ items, scoringModel, onUpdateItem, onDele
 
       const values = isRice
         ? [String(idx + 1), item.title, String(item.reach), String(item.impact), String(item.confidence), String(item.effort), String(score), status]
-        : [String(idx + 1), item.title, String(item.impact), String(item.confidence), String(item.effort), String(score), status]
+        : isWsjf
+          ? [String(idx + 1), item.title, String(item.reach), String(item.impact), String(item.confidence), String(item.effort), String(score), status]
+          : [String(idx + 1), item.title, String(item.impact), String(item.confidence), String(item.effort), String(score), status]
 
       let rx = padding
       values.forEach((val, i) => {
@@ -390,9 +407,11 @@ export default function ScoringTable({ items, scoringModel, onUpdateItem, onDele
           ctx.textAlign = 'center'
           ctx.font = '500 12px "JetBrains Mono", monospace'
           const scoreNum = parseFloat(val)
-          const scoreColor = scoreNum >= 150
+          const hiThresh = isWsjf ? 15 : 150
+          const midThresh = isWsjf ? 7 : 60
+          const scoreColor = scoreNum >= hiThresh
             ? { bg: isDark ? 'rgba(16,185,129,0.15)' : '#ecfdf5', text: isDark ? '#34d399' : '#059669' }
-            : scoreNum >= 60
+            : scoreNum >= midThresh
               ? { bg: isDark ? 'rgba(245,158,11,0.15)' : '#fffbeb', text: isDark ? '#fbbf24' : '#d97706' }
               : { bg: isDark ? 'rgba(239,68,68,0.15)' : '#fef2f2', text: isDark ? '#f87171' : '#dc2626' }
           const tw = ctx.measureText(val).width
@@ -448,10 +467,17 @@ export default function ScoringTable({ items, scoringModel, onUpdateItem, onDele
               {scoringModel === 'rice' && (
                 <th className="py-3 px-1 text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider w-18">Reach</th>
               )}
-              <th className="py-3 px-1 text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider w-18">Impact</th>
-              <th className="py-3 px-1 text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider w-18">Conf.</th>
+              {scoringModel === 'wsjf' && (
+                <th className="py-3 px-1 text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider w-18">Value</th>
+              )}
               <th className="py-3 px-1 text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider w-18">
-                {scoringModel === 'ice' ? 'Ease' : 'Effort'}
+                {scoringModel === 'wsjf' ? 'Urgency' : 'Impact'}
+              </th>
+              <th className="py-3 px-1 text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider w-18">
+                {scoringModel === 'wsjf' ? 'Risk' : 'Conf.'}
+              </th>
+              <th className="py-3 px-1 text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider w-18">
+                {scoringModel === 'wsjf' ? 'Size' : scoringModel === 'ice' ? 'Ease' : 'Effort'}
               </th>
               <th className="py-3 px-2 text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider w-20">Score</th>
               <th className="py-3 px-2 text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider w-28">Segment</th>

@@ -12,7 +12,7 @@ create table public.boards (
   id uuid primary key default uuid_generate_v4(),
   name varchar(255) not null,
   description text,
-  scoring_model varchar(10) not null default 'rice' check (scoring_model in ('rice', 'ice')),
+  scoring_model varchar(10) not null default 'rice' check (scoring_model in ('rice', 'ice', 'wsjf')),
   owner_id uuid not null references auth.users(id) on delete cascade,
   share_token varchar(64) unique default encode(gen_random_bytes(24), 'hex'),
   is_shared boolean not null default false,
