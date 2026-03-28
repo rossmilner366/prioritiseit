@@ -8,11 +8,13 @@ const QUADRANTS = [
 ]
 
 // Spread items that share exact or near-identical coordinates
+// Jitter is minimal — just enough to separate visually without misrepresenting the data
 function jitterOverlaps(items, effortRange, impactRange) {
-  const THRESHOLD_E = effortRange * 0.04
-  const THRESHOLD_I = impactRange * 0.04
-  const JITTER_E = effortRange * 0.06
-  const JITTER_I = impactRange * 0.06
+  const THRESHOLD_E = effortRange * 0.02
+  const THRESHOLD_I = impactRange * 0.02
+  // Jitter by roughly 1 dot-width in chart coordinates
+  const JITTER_E = effortRange * 0.025
+  const JITTER_I = impactRange * 0.025
 
   const result = items.map(item => ({
     ...item,
@@ -20,7 +22,6 @@ function jitterOverlaps(items, effortRange, impactRange) {
     _impact: item.impact,
   }))
 
-  // Find clusters
   const placed = []
   for (const item of result) {
     const overlaps = placed.filter(p =>
@@ -28,17 +29,16 @@ function jitterOverlaps(items, effortRange, impactRange) {
       Math.abs(p._impact - item._impact) < THRESHOLD_I
     )
     if (overlaps.length > 0) {
-      const count = overlaps.length + 1
-      const angle = (overlaps.length / count) * 2 * Math.PI
-      item._effort = item.effort + Math.cos(angle) * JITTER_E
-      item._impact = item.impact + Math.sin(angle) * JITTER_I
-
-      // Also nudge the first one if it hasn't been nudged yet
-      if (overlaps.length === 1 && overlaps[0]._effort === overlaps[0].effort && overlaps[0]._impact === overlaps[0].impact) {
-        const firstAngle = 0
-        overlaps[0]._effort = overlaps[0].effort + Math.cos(firstAngle) * JITTER_E
-        overlaps[0]._impact = overlaps[0].impact + Math.sin(firstAngle) * JITTER_I
+      const total = overlaps.length + 1
+      // Spread all items in the cluster evenly around the true position
+      for (let i = 0; i < overlaps.length; i++) {
+        const angle = (i / total) * 2 * Math.PI - Math.PI / 2
+        overlaps[i]._effort = overlaps[i].effort + Math.cos(angle) * JITTER_E
+        overlaps[i]._impact = overlaps[i].impact + Math.sin(angle) * JITTER_I
       }
+      const myAngle = (overlaps.length / total) * 2 * Math.PI - Math.PI / 2
+      item._effort = item.effort + Math.cos(myAngle) * JITTER_E
+      item._impact = item.impact + Math.sin(myAngle) * JITTER_I
     }
     placed.push(item)
   }
