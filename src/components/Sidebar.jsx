@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { LogoMark, LogoFull } from './Logo'
 
 function ThemeToggle({ theme, toggleTheme }) {
   return (
@@ -23,8 +24,8 @@ export default function Sidebar({ boards, sharedBoards, activeBoardId, onSelectB
   if (collapsed) {
     return (
       <div className="w-14 bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-white/[0.06] flex flex-col items-center py-4 gap-3 shrink-0 transition-colors">
-        <button onClick={() => setCollapsed(false)} className="w-9 h-9 bg-brand-400 rounded-xl flex items-center justify-center">
-          <span className="text-white font-bold text-sm">P</span>
+        <button onClick={() => setCollapsed(false)} className="shrink-0">
+          <LogoMark size={36} />
         </button>
         <div className="w-6 h-px bg-slate-200 dark:bg-white/10 my-1" />
         <button onClick={onGoHome} className="w-9 h-9 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors" title="Dashboard">
@@ -49,10 +50,8 @@ export default function Sidebar({ boards, sharedBoards, activeBoardId, onSelectB
   return (
     <div className="w-60 bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-white/[0.06] flex flex-col shrink-0 transition-colors">
       <div className="p-4 flex items-center gap-3">
-        <div className="w-8 h-8 bg-brand-400 rounded-xl flex items-center justify-center shrink-0">
-          <span className="text-white font-bold text-sm">P</span>
-        </div>
-        <span className="font-semibold text-slate-900 dark:text-white text-sm">PrioritiseIt</span>
+        <LogoMark size={32} className="shrink-0" />
+        <span className="font-bold text-slate-900 dark:text-white text-sm">Prioritise<span className="text-brand-400">It</span></span>
         <button
           onClick={() => setCollapsed(true)}
           className="ml-auto text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"

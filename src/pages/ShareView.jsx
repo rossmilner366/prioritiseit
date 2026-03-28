@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { LogoMark } from '../components/Logo'
 import MatrixView from '../components/MatrixView'
 
 const STATUS_MAP = {
@@ -71,8 +72,8 @@ export default function ShareView() {
     return (
       <div className="min-h-screen flex items-center justify-center px-4 bg-gray-50 dark:bg-slate-950">
         <div className="text-center">
-          <div className="w-14 h-14 mx-auto mb-4 bg-brand-400 rounded-2xl flex items-center justify-center">
-            <span className="text-white text-xl font-bold">P</span>
+          <div className="flex justify-center mb-4">
+            <LogoMark size={56} />
           </div>
           <h1 className="text-slate-900 dark:text-white font-medium mb-2">Board unavailable</h1>
           <p className="text-slate-500 dark:text-slate-400 text-sm">{error}</p>
@@ -87,10 +88,8 @@ export default function ShareView() {
       <div className="bg-gradient-to-b from-brand-400 to-brand-500 px-6 py-8 lg:px-10">
         <div className="max-w-3xl mx-auto">
           <div className="flex items-center gap-2 mb-3">
-            <div className="w-7 h-7 bg-white/20 rounded-lg flex items-center justify-center">
-              <span className="text-white text-sm font-bold">P</span>
-            </div>
-            <span className="text-white/70 text-xs font-medium">PrioritiseIt</span>
+            <LogoMark size={28} />
+            <span className="text-white/70 text-xs font-medium">Prioritise<span className="text-white/90">It</span></span>
             <span className="ml-auto badge bg-white/15 text-white/90 text-[10px]">Read-only</span>
           </div>
           <h1 className="text-white text-2xl font-semibold">{board.name}</h1>
@@ -182,7 +181,7 @@ export default function ShareView() {
         {/* Footer */}
         <div className="mt-8 text-center">
           <p className="text-slate-400 dark:text-slate-600 text-xs">
-            Powered by <span className="text-brand-500 dark:text-brand-400">PrioritiseIt</span> — feature prioritisation for product teams
+            Powered by <span className="text-brand-500 dark:text-brand-400">Prioritise<span className="font-semibold">It</span></span> — feature prioritisation for product teams
           </p>
         </div>
       </div>

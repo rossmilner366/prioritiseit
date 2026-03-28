@@ -1,13 +1,5 @@
 import { useState } from 'react'
-
-function Logo({ size = 'lg' }) {
-  const s = size === 'lg' ? 'w-14 h-14 rounded-2xl text-2xl' : 'w-10 h-10 rounded-xl text-lg'
-  return (
-    <div className={`${s} bg-brand-400 flex items-center justify-center shadow-lg shadow-brand-400/20`}>
-      <span className="text-white font-bold">P</span>
-    </div>
-  )
-}
+import { LogoMark } from '../components/Logo'
 
 function FeaturePoint({ icon, title, desc }) {
   return (
@@ -65,9 +57,7 @@ export default function AuthPage({ onEmailSignIn, onGoogleSignIn, theme, toggleT
         <div className="absolute top-1/2 right-1/4 w-32 h-32 bg-white/[0.03] rounded-full" />
 
         <div className="relative">
-          <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mb-8">
-            <span className="text-white text-xl font-bold">P</span>
-          </div>
+          <LogoMark size={48} className="mb-8" />
           <h1 className="text-3xl font-bold text-white mb-3 leading-tight">
             Prioritise with<br />clarity, share with<br />confidence
           </h1>
@@ -119,10 +109,10 @@ export default function AuthPage({ onEmailSignIn, onGoogleSignIn, theme, toggleT
           {/* Mobile logo (hidden on desktop where left panel shows) */}
           <div className="text-center mb-8 lg:mb-10">
             <div className="lg:hidden flex justify-center mb-5">
-              <Logo />
+              <LogoMark size={56} />
             </div>
             <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
-              <span className="lg:hidden">PrioritiseIt</span>
+              <span className="lg:hidden">Prioritise<span className="text-brand-400">It</span></span>
               <span className="hidden lg:inline">Welcome back</span>
             </h2>
             <p className="text-slate-500 dark:text-slate-400 text-sm">
@@ -179,12 +169,18 @@ export default function AuthPage({ onEmailSignIn, onGoogleSignIn, theme, toggleT
                   </button>
                 </form>
 
+                {error && (
+                  <div className="mt-4 p-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-lg">
+                    <p className="text-red-600 dark:text-red-400 text-sm text-center">{error}</p>
+                  </div>
+                )}
+
                 <div className="relative my-6">
                   <div className="absolute inset-0 flex items-center">
                     <div className="w-full border-t border-slate-200 dark:border-white/[0.08]" />
                   </div>
                   <div className="relative flex justify-center">
-                    <span className="bg-white dark:bg-slate-950 px-3 text-xs text-slate-400 dark:text-slate-500">or</span>
+                    <span className="bg-white dark:bg-[#0d1117] px-3 text-xs text-slate-400 dark:text-slate-500">or</span>
                   </div>
                 </div>
 
@@ -192,7 +188,7 @@ export default function AuthPage({ onEmailSignIn, onGoogleSignIn, theme, toggleT
                   onClick={onGoogleSignIn}
                   className="w-full flex items-center justify-center gap-2.5 px-4 py-2.5 bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/[0.06] hover:border-slate-300 dark:hover:border-white/20 active:scale-[0.98] transition-all"
                 >
-                  <svg className="w-4.5 h-4.5" viewBox="0 0 24 24">
+                  <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24">
                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
                     <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
                     <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
@@ -200,12 +196,6 @@ export default function AuthPage({ onEmailSignIn, onGoogleSignIn, theme, toggleT
                   </svg>
                   Continue with Google
                 </button>
-
-                {error && (
-                  <div className="mt-4 p-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-lg">
-                    <p className="text-red-600 dark:text-red-400 text-sm text-center">{error}</p>
-                  </div>
-                )}
               </>
             )}
           </div>
