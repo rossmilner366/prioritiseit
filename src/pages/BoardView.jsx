@@ -13,7 +13,7 @@ export default function BoardView({ board, onUpdateBoard, onDeleteBoard, onBack 
 
   const isOwner = board._role === 'owner'
   const canEdit = isOwner || board._role === 'editor'
-  const [showGuide, setShowGuide] = useState(false)
+  const [showGuide, setShowGuide] = useState(true)
   const [newTitle, setNewTitle] = useState('')
   const [editingName, setEditingName] = useState(false)
   const [boardName, setBoardName] = useState(board.name)
