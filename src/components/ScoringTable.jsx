@@ -193,6 +193,9 @@ function SortableRow({ item, scoringModel, midEffort, midImpact, onUpdate, onDel
       <td className="py-3 px-2">
         <span className={`score-pill text-sm ${getScoreColor(score)}`}>{score}</span>
       </td>
+      <td className="py-3 px-2">
+        <span className={`badge text-xs ${quadrant.classes}`}>{quadrant.label}</span>
+      </td>
       <td className="py-3 px-2 relative">
         <button
           onClick={() => setShowMenu(!showMenu)}
@@ -236,9 +239,6 @@ function SortableRow({ item, scoringModel, midEffort, midImpact, onUpdate, onDel
             </div>
           </>
         )}
-      </td>
-      <td className="py-3 px-2">
-        <span className={`badge text-xs ${quadrant.classes}`}>{quadrant.label}</span>
       </td>
       <td className="py-3 px-2 w-8">
         <button
@@ -454,8 +454,8 @@ export default function ScoringTable({ items, scoringModel, onUpdateItem, onDele
                 {scoringModel === 'ice' ? 'Ease' : 'Effort'}
               </th>
               <th className="py-3 px-2 text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider w-20">Score</th>
-              <th className="py-3 px-2 text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider w-32">Status</th>
               <th className="py-3 px-2 text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider w-28">Segment</th>
+              <th className="py-3 px-2 text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider w-32">Status</th>
               <th className="py-3 px-2 w-8" />
             </tr>
           </thead>
