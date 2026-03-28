@@ -68,12 +68,15 @@ export default function ShareView() {
         .order('manual_rank', { ascending: true, nullsFirst: false })
         .order('score', { ascending: false })
 
-      const processedItems = b.scoring_model === 'wsjf'
-        ? (itemData || []).map(item => ({
-            ...item,
-            score: item.effort > 0 ? (item.reach + item.impact + item.confidence) / item.effort : 0,
-          }))
-        : (itemData || [])
+      const processedItems = (itemData || []).map(item => {
+        if (b.scoring_model === 'wsjf') {
+          return { ...item, score: item.effort > 0 ? (item.reach + item.impact + item.confidence) / item.effort : 0 }
+        }
+        if (b.scoring_model === 'ice') {
+          return { ...item, score: item.impact * item.confidence * item.effort }
+        }
+        return item
+      })
       setItems(processedItems)
       setLoading(false)
     }

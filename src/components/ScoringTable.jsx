@@ -30,6 +30,11 @@ function getScoreColor(score, scoringModel) {
     if (score >= 7) return 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400'
     return 'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400'
   }
+  if (scoringModel === 'ice') {
+    if (score >= 400) return 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400'
+    if (score >= 125) return 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400'
+    return 'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400'
+  }
   if (score >= 150) return 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400'
   if (score >= 60) return 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400'
   return 'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400'

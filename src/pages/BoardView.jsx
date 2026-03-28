@@ -7,12 +7,15 @@ import ShareModal from '../components/ShareModal'
 
 export default function BoardView({ board, onUpdateBoard, onDeleteBoard, onBack }) {
   const { items: rawItems, loading, addItem, updateItem, deleteItem, reorderItems } = useItems(board.id)
-  const items = board.scoring_model === 'wsjf'
-    ? rawItems.map(item => ({
-        ...item,
-        score: item.effort > 0 ? (item.reach + item.impact + item.confidence) / item.effort : 0,
-      }))
-    : rawItems
+  const items = rawItems.map(item => {
+    if (board.scoring_model === 'wsjf') {
+      return { ...item, score: item.effort > 0 ? (item.reach + item.impact + item.confidence) / item.effort : 0 }
+    }
+    if (board.scoring_model === 'ice') {
+      return { ...item, score: item.impact * item.confidence * item.effort }
+    }
+    return item
+  })
   const [view, setView] = useState('list')
   const [showShare, setShowShare] = useState(false)
   const [showAddItem, setShowAddItem] = useState(false)

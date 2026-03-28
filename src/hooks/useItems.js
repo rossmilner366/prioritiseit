@@ -27,7 +27,7 @@ export function useItems(boardId) {
     const defaults = scoringModel === 'wsjf'
       ? { reach: 5, impact: 5, confidence: 5, effort: 5 }
       : scoringModel === 'ice'
-        ? { reach: 0, impact: 5, confidence: 5, effort: 5 }
+        ? { reach: 50, impact: 5, confidence: 5, effort: 5 }
         : { reach: 50, impact: 2, confidence: 2, effort: 3 }
     const { data, error } = await supabase
       .from('items')
