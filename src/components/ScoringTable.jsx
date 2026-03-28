@@ -233,7 +233,7 @@ function SortableRow({ item, scoringModel, onUpdate, onDelete }) {
   )
 }
 
-export default function ScoringTable({ items, scoringModel, onUpdateItem, onDeleteItem, onReorder }) {
+export default function ScoringTable({ items, scoringModel, onUpdateItem, onDeleteItem, onReorder, boardName }) {
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
@@ -248,10 +248,175 @@ export default function ScoringTable({ items, scoringModel, onUpdateItem, onDele
     onReorder(reordered)
   }
 
+  const handleExportPNG = () => {
+    const isDark = document.documentElement.classList.contains('dark')
+    const scale = 2
+    const isRice = scoringModel === 'rice'
+    const cols = isRice
+      ? ['#', 'Feature', 'Reach', 'Impact', 'Conf.', 'Effort', 'Score', 'Status']
+      : ['#', 'Feature', 'Impact', 'Conf.', 'Ease', 'Score', 'Status']
+    const colWidths = isRice
+      ? [40, 280, 70, 70, 70, 70, 80, 100]
+      : [40, 320, 80, 80, 80, 80, 100]
+    const tableWidth = colWidths.reduce((a, b) => a + b, 0)
+    const rowH = 40
+    const headerH = 44
+    const padding = 40
+    const titleH = 50
+    const canvasW = (tableWidth + padding * 2) * scale
+    const canvasH = (titleH + headerH + rowH * items.length + padding * 2) * scale
+
+    const canvas = document.createElement('canvas')
+    canvas.width = canvasW
+    canvas.height = canvasH
+    const ctx = canvas.getContext('2d')
+    ctx.scale(scale, scale)
+
+    // Background
+    ctx.fillStyle = isDark ? '#0B0F1A' : '#ffffff'
+    ctx.fillRect(0, 0, canvasW / scale, canvasH / scale)
+
+    // Title
+    ctx.fillStyle = isDark ? '#e2e8f0' : '#1e293b'
+    ctx.font = '600 16px "DM Sans", system-ui, sans-serif'
+    ctx.fillText(boardName || 'Priority list', padding, padding + 20)
+    ctx.fillStyle = isDark ? '#64748b' : '#94a3b8'
+    ctx.font = '400 11px "DM Sans", system-ui, sans-serif'
+    ctx.fillText(`${scoringModel.toUpperCase()} · ${items.length} items`, padding + ctx.measureText(boardName || 'Priority list').width + 16, padding + 20)
+
+    const tableTop = padding + titleH
+
+    // Header row
+    ctx.fillStyle = isDark ? 'rgba(255,255,255,0.03)' : '#f8fafc'
+    ctx.fillRect(padding, tableTop, tableWidth, headerH)
+    ctx.fillStyle = isDark ? '#64748b' : '#94a3b8'
+    ctx.font = '500 10px "DM Sans", system-ui, sans-serif'
+    let hx = padding
+    cols.forEach((col, i) => {
+      const tx = i === 1 ? hx + 12 : hx + colWidths[i] / 2
+      ctx.textAlign = i === 1 ? 'left' : 'center'
+      ctx.fillText(col.toUpperCase(), tx, tableTop + headerH / 2 + 4)
+      hx += colWidths[i]
+    })
+
+    // Header border
+    ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.08)' : '#e2e8f0'
+    ctx.lineWidth = 0.5
+    ctx.beginPath()
+    ctx.moveTo(padding, tableTop + headerH)
+    ctx.lineTo(padding + tableWidth, tableTop + headerH)
+    ctx.stroke()
+
+    // Data rows
+    items.forEach((item, idx) => {
+      const y = tableTop + headerH + idx * rowH
+      const score = item.score != null ? Math.round(item.score * 10) / 10 : 0
+      const status = { backlog: 'Backlog', planned: 'Planned', in_progress: 'In progress', done: 'Done' }[item.status] || item.status
+
+      // Alternating row bg
+      if (idx % 2 === 1) {
+        ctx.fillStyle = isDark ? 'rgba(255,255,255,0.015)' : '#fafbfc'
+        ctx.fillRect(padding, y, tableWidth, rowH)
+      }
+
+      // Row border
+      ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.04)' : '#f1f5f9'
+      ctx.lineWidth = 0.5
+      ctx.beginPath()
+      ctx.moveTo(padding, y + rowH)
+      ctx.lineTo(padding + tableWidth, y + rowH)
+      ctx.stroke()
+
+      const values = isRice
+        ? [String(idx + 1), item.title, String(item.reach), String(item.impact), String(item.confidence), String(item.effort), String(score), status]
+        : [String(idx + 1), item.title, String(item.impact), String(item.confidence), String(item.effort), String(score), status]
+
+      let rx = padding
+      values.forEach((val, i) => {
+        const cy = y + rowH / 2 + 4
+
+        if (i === 1) {
+          // Feature name — left aligned, bold
+          ctx.textAlign = 'left'
+          ctx.font = '500 13px "DM Sans", system-ui, sans-serif'
+          ctx.fillStyle = isDark ? '#e2e8f0' : '#1e293b'
+          const pinned = item.manual_rank != null ? '📌 ' : ''
+          ctx.fillText(pinned + val, rx + 12, cy)
+        } else if (i === values.length - 1) {
+          // Status badge
+          ctx.textAlign = 'center'
+          ctx.font = '500 11px "DM Sans", system-ui, sans-serif'
+          const statusColors = {
+            Backlog: { bg: isDark ? '#1e293b' : '#f1f5f9', text: isDark ? '#94a3b8' : '#64748b' },
+            Planned: { bg: isDark ? 'rgba(59,130,246,0.15)' : '#eff6ff', text: isDark ? '#60a5fa' : '#2563eb' },
+            'In progress': { bg: isDark ? 'rgba(245,158,11,0.15)' : '#fffbeb', text: isDark ? '#fbbf24' : '#d97706' },
+            Done: { bg: isDark ? 'rgba(16,185,129,0.15)' : '#ecfdf5', text: isDark ? '#34d399' : '#059669' },
+          }
+          const sc = statusColors[val] || statusColors.Backlog
+          const tw = ctx.measureText(val).width
+          const badgeW = tw + 16
+          const badgeX = rx + colWidths[i] / 2 - badgeW / 2
+          ctx.fillStyle = sc.bg
+          roundRect(ctx, badgeX, cy - 12, badgeW, 20, 4)
+          ctx.fill()
+          ctx.fillStyle = sc.text
+          ctx.fillText(val, rx + colWidths[i] / 2, cy + 1)
+        } else if (i === values.length - 2) {
+          // Score pill
+          ctx.textAlign = 'center'
+          ctx.font = '500 12px "JetBrains Mono", monospace'
+          const scoreNum = parseFloat(val)
+          const scoreColor = scoreNum >= 150
+            ? { bg: isDark ? 'rgba(16,185,129,0.15)' : '#ecfdf5', text: isDark ? '#34d399' : '#059669' }
+            : scoreNum >= 60
+              ? { bg: isDark ? 'rgba(245,158,11,0.15)' : '#fffbeb', text: isDark ? '#fbbf24' : '#d97706' }
+              : { bg: isDark ? 'rgba(239,68,68,0.15)' : '#fef2f2', text: isDark ? '#f87171' : '#dc2626' }
+          const tw = ctx.measureText(val).width
+          const pillW = tw + 16
+          const pillX = rx + colWidths[i] / 2 - pillW / 2
+          ctx.fillStyle = scoreColor.bg
+          roundRect(ctx, pillX, cy - 12, pillW, 20, 10)
+          ctx.fill()
+          ctx.fillStyle = scoreColor.text
+          ctx.fillText(val, rx + colWidths[i] / 2, cy + 1)
+        } else {
+          // Number columns
+          ctx.textAlign = 'center'
+          ctx.font = i === 0 ? '400 12px "DM Sans", system-ui, sans-serif' : '400 13px "JetBrains Mono", monospace'
+          ctx.fillStyle = i === 0 ? (isDark ? '#64748b' : '#94a3b8') : (isDark ? '#cbd5e1' : '#475569')
+          ctx.fillText(val, rx + colWidths[i] / 2, cy)
+        }
+        rx += colWidths[i]
+      })
+    })
+
+    // Download
+    canvas.toBlob((blob) => {
+      const a = document.createElement('a')
+      a.href = URL.createObjectURL(blob)
+      a.download = `${(boardName || 'priorities').toLowerCase().replace(/\s+/g, '-')}-list.png`
+      a.click()
+      URL.revokeObjectURL(a.href)
+    }, 'image/png')
+  }
+
   return (
-    <div className="card overflow-visible">
-      <div className="overflow-x-auto" style={{ overflowY: 'visible' }}>
-        <table className="w-full text-left" style={{ minHeight: items.length <= 2 ? '220px' : undefined }}>
+    <div>
+      <div className="flex justify-end mb-2">
+        <button
+          onClick={handleExportPNG}
+          className="btn-outline flex items-center gap-1.5 text-xs"
+          title="Download list as PNG"
+        >
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          Export PNG
+        </button>
+      </div>
+      <div className="card overflow-visible">
+        <div className="overflow-x-auto" style={{ overflowY: 'visible' }}>
+          <table className="w-full text-left" style={{ minHeight: items.length <= 2 ? '220px' : undefined }}>
           <thead>
             <tr className="border-b border-slate-200 dark:border-white/[0.06]">
               <th className="py-3 px-2 w-8" />
@@ -287,5 +452,20 @@ export default function ScoringTable({ items, scoringModel, onUpdateItem, onDele
         </table>
       </div>
     </div>
+    </div>
   )
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath()
+  ctx.moveTo(x + r, y)
+  ctx.lineTo(x + w - r, y)
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r)
+  ctx.lineTo(x + w, y + h - r)
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h)
+  ctx.lineTo(x + r, y + h)
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r)
+  ctx.lineTo(x, y + r)
+  ctx.quadraticCurveTo(x, y, x + r, y)
+  ctx.closePath()
 }

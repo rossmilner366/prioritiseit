@@ -76,7 +76,7 @@ export default function Sidebar({ boards, activeBoardId, onSelectBoard, onGoHome
       </div>
 
       <div className="px-4 mt-4 mb-1.5">
-        <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider">Boards</span>
+        <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider">Your boards</span>
       </div>
       <div className="flex-1 overflow-y-auto px-3 space-y-0.5">
         {boards.map(b => (
@@ -96,6 +96,29 @@ export default function Sidebar({ boards, activeBoardId, onSelectBoard, onGoHome
             )}
           </button>
         ))}
+
+        {sharedBoards && sharedBoards.length > 0 && (
+          <>
+            <div className="px-1 pt-3 pb-1">
+              <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider">Shared with you</span>
+            </div>
+            {sharedBoards.map(b => (
+              <button
+                key={b.id}
+                onClick={() => onSelectBoard(b.id)}
+                className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm transition-colors text-left ${
+                  activeBoardId === b.id
+                    ? 'bg-brand-50 dark:bg-brand-400/10 text-brand-600 dark:text-brand-400'
+                    : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/[0.04] hover:text-slate-700 dark:hover:text-slate-200'
+                }`}
+              >
+                <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                <span className="truncate">{b.name}</span>
+                <span className="ml-auto shrink-0 text-[10px] font-mono text-slate-400 dark:text-slate-600 capitalize">{b._role}</span>
+              </button>
+            ))}
+          </>
+        )}
       </div>
 
       <div className="p-3 border-t border-slate-200 dark:border-white/[0.06] space-y-0.5">

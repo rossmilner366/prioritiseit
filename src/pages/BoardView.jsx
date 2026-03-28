@@ -10,6 +10,9 @@ export default function BoardView({ board, onUpdateBoard, onDeleteBoard, onBack 
   const [view, setView] = useState('list')
   const [showShare, setShowShare] = useState(false)
   const [showAddItem, setShowAddItem] = useState(false)
+
+  const isOwner = board._role === 'owner'
+  const canEdit = isOwner || board._role === 'editor'
   const [showGuide, setShowGuide] = useState(false)
   const [newTitle, setNewTitle] = useState('')
   const [editingName, setEditingName] = useState(false)
@@ -48,7 +51,7 @@ export default function BoardView({ board, onUpdateBoard, onDeleteBoard, onBack 
           <button onClick={onBack} className="text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors shrink-0">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" /></svg>
           </button>
-          {editingName ? (
+          {editingName && canEdit ? (
             <input
               value={boardName}
               onChange={(e) => setBoardName(e.target.value)}
@@ -59,9 +62,9 @@ export default function BoardView({ board, onUpdateBoard, onDeleteBoard, onBack 
             />
           ) : (
             <h1
-              className="text-xl font-semibold text-slate-900 dark:text-white truncate cursor-pointer hover:text-brand-300 transition-colors"
-              onClick={() => { setBoardName(board.name); setEditingName(true) }}
-              title="Click to rename"
+              className={`text-xl font-semibold text-slate-900 dark:text-white truncate ${canEdit ? 'cursor-pointer hover:text-brand-300' : ''} transition-colors`}
+              onClick={() => canEdit && setBoardName(board.name) && setEditingName(true)}
+              title={canEdit ? 'Click to rename' : board.name}
             >
               {board.name}
             </h1>
@@ -69,6 +72,11 @@ export default function BoardView({ board, onUpdateBoard, onDeleteBoard, onBack 
           <span className="badge bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400 uppercase font-mono text-[10px] tracking-wider shrink-0">
             {board.scoring_model}
           </span>
+          {!isOwner && (
+            <span className="badge bg-brand-50 dark:bg-brand-400/10 text-brand-600 dark:text-brand-400 text-[10px] shrink-0 capitalize">
+              {board._role}
+            </span>
+          )}
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
@@ -103,15 +111,19 @@ export default function BoardView({ board, onUpdateBoard, onDeleteBoard, onBack 
             </button>
           </div>
 
-          <button onClick={() => setShowShare(true)} className="btn-outline flex items-center gap-1.5">
-            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
-            Share
-          </button>
+          {isOwner && (
+            <button onClick={() => setShowShare(true)} className="btn-outline flex items-center gap-1.5">
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
+              Share
+            </button>
+          )}
 
-          <button onClick={() => setShowAddItem(true)} className="btn-primary flex items-center gap-1.5">
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
-            Add item
-          </button>
+          {canEdit && (
+            <button onClick={() => setShowAddItem(true)} className="btn-primary flex items-center gap-1.5">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+              Add item
+            </button>
+          )}
         </div>
       </div>
 
@@ -186,6 +198,7 @@ export default function BoardView({ board, onUpdateBoard, onDeleteBoard, onBack 
               onUpdateItem={updateItem}
               onDeleteItem={deleteItem}
               onReorder={reorderItems}
+              boardName={board.name}
             />
           </div>
           {showGuide && (

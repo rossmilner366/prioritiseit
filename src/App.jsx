@@ -11,7 +11,7 @@ export default function App() {
   const { user, loading, signInWithEmail, signInWithGoogle, signOut } = useAuth()
   const { theme, toggleTheme } = useTheme()
   const [activeBoardId, setActiveBoardId] = useState(null)
-  const { boards, loading: boardsLoading, createBoard, updateBoard, deleteBoard, refetch } = useBoards(user?.id)
+  const { boards, sharedBoards, allBoards, loading: boardsLoading, createBoard, updateBoard, deleteBoard, refetch } = useBoards(user?.id)
 
   if (loading) {
     return (
@@ -25,12 +25,13 @@ export default function App() {
     return <AuthPage onEmailSignIn={signInWithEmail} onGoogleSignIn={signInWithGoogle} theme={theme} toggleTheme={toggleTheme} />
   }
 
-  const activeBoard = boards.find(b => b.id === activeBoardId)
+  const activeBoard = allBoards.find(b => b.id === activeBoardId)
 
   return (
     <div className="min-h-screen flex bg-gray-50 dark:bg-slate-950 transition-colors">
       <Sidebar
         boards={boards}
+        sharedBoards={sharedBoards}
         activeBoardId={activeBoardId}
         onSelectBoard={setActiveBoardId}
         onGoHome={() => setActiveBoardId(null)}
