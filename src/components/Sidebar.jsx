@@ -23,7 +23,7 @@ export default function Sidebar({ boards, sharedBoards, activeBoardId, onSelectB
 
   if (collapsed) {
     return (
-      <div className="w-14 bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-white/[0.06] flex flex-col items-center py-4 gap-3 shrink-0 transition-colors">
+      <div className="w-14 h-screen bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-white/[0.06] flex flex-col items-center py-4 gap-3 shrink-0 transition-colors sticky top-0 overflow-y-auto">
         <button onClick={() => setCollapsed(false)} className="shrink-0">
           <LogoMark size={36} />
         </button>
@@ -69,7 +69,7 @@ export default function Sidebar({ boards, sharedBoards, activeBoardId, onSelectB
   }
 
   return (
-    <div className="w-60 bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-white/[0.06] flex flex-col shrink-0 transition-colors">
+    <div className="w-60 h-screen bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-white/[0.06] flex flex-col shrink-0 transition-colors sticky top-0">
       <div className="p-4 flex items-center gap-3">
         <LogoMark size={32} className="shrink-0" />
         <span className="font-bold text-slate-900 dark:text-white text-sm">Prioritise<span className="text-brand-400">It</span></span>

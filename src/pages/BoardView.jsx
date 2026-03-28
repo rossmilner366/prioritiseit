@@ -202,11 +202,13 @@ export default function BoardView({ board, onUpdateBoard, onDeleteBoard, onBack 
             />
           </div>
           {showGuide && (
-            <div className="w-80 shrink-0 hidden lg:block sticky top-6">
-              <ScoringGuidePanel
-                scoringModel={board.scoring_model}
-                onClose={() => setShowGuide(false)}
-              />
+            <div className="w-80 shrink-0 hidden lg:block sticky top-6 max-h-[calc(100vh-3rem)]">
+              <div className="overflow-y-auto max-h-[calc(100vh-3rem)] rounded-xl">
+                <ScoringGuidePanel
+                  scoringModel={board.scoring_model}
+                  onClose={() => setShowGuide(false)}
+                />
+              </div>
             </div>
           )}
         </div>
