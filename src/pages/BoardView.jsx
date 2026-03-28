@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useItems } from '../hooks/useItems'
 import ScoringTable from '../components/ScoringTable'
+import ScoringGuidePanel from '../components/ScoringGuidePanel'
 import MatrixView from '../components/MatrixView'
 import ShareModal from '../components/ShareModal'
 
@@ -9,6 +10,7 @@ export default function BoardView({ board, onUpdateBoard, onDeleteBoard, onBack 
   const [view, setView] = useState('list')
   const [showShare, setShowShare] = useState(false)
   const [showAddItem, setShowAddItem] = useState(false)
+  const [showGuide, setShowGuide] = useState(false)
   const [newTitle, setNewTitle] = useState('')
   const [editingName, setEditingName] = useState(false)
   const [boardName, setBoardName] = useState(board.name)
@@ -29,7 +31,7 @@ export default function BoardView({ board, onUpdateBoard, onDeleteBoard, onBack 
   }
 
   return (
-    <div className="p-6 lg:p-10 max-w-6xl">
+    <div className="p-6 lg:p-10">
       {/* Header */}
       <div className="flex items-start justify-between mb-6">
         <div className="flex items-center gap-3 min-w-0">
@@ -60,6 +62,19 @@ export default function BoardView({ board, onUpdateBoard, onDeleteBoard, onBack 
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
+          {/* Guide toggle */}
+          {view === 'list' && (
+            <button
+              onClick={() => setShowGuide(!showGuide)}
+              className={`btn-ghost flex items-center gap-1.5 ${showGuide ? 'text-brand-400' : ''}`}
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+              </svg>
+              Guide
+            </button>
+          )}
+
           {/* View toggle */}
           <div className="flex bg-white/[0.04] rounded-lg p-0.5">
             <button
@@ -125,13 +140,25 @@ export default function BoardView({ board, onUpdateBoard, onDeleteBoard, onBack 
           <button onClick={() => setShowAddItem(true)} className="btn-primary">Add first item</button>
         </div>
       ) : view === 'list' ? (
-        <ScoringTable
-          items={items}
-          scoringModel={board.scoring_model}
-          onUpdateItem={updateItem}
-          onDeleteItem={deleteItem}
-          onReorder={reorderItems}
-        />
+        <div className={`flex gap-6 items-start ${showGuide ? '' : ''}`}>
+          <div className={`min-w-0 ${showGuide ? 'flex-1' : 'w-full'}`}>
+            <ScoringTable
+              items={items}
+              scoringModel={board.scoring_model}
+              onUpdateItem={updateItem}
+              onDeleteItem={deleteItem}
+              onReorder={reorderItems}
+            />
+          </div>
+          {showGuide && (
+            <div className="w-80 shrink-0 hidden lg:block sticky top-6">
+              <ScoringGuidePanel
+                scoringModel={board.scoring_model}
+                onClose={() => setShowGuide(false)}
+              />
+            </div>
+          )}
+        </div>
       ) : (
         <MatrixView items={items} />
       )}
