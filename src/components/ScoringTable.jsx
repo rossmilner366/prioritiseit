@@ -146,9 +146,13 @@ function SortableRow({ item, scoringModel, midEffort, midImpact, onUpdate, onDel
       <td className="py-3 px-3 relative">
         <div className="flex items-center gap-1.5">
           {item.manual_rank != null && (
-            <span className="text-brand-400 shrink-0" title="Manually pinned">
-              <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>
-            </span>
+            <button
+              onClick={() => onUpdate(item.id, { manual_rank: null })}
+              className="text-brand-400 hover:text-slate-400 shrink-0 transition-colors"
+              title="Click to unpin"
+            >
+              <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M16 3a1 1 0 0 1 .707 1.707L15.414 6l2.829 2.828a1 1 0 0 1-1.415 1.415L16 9.414l-1.586 1.586.707.707a1 1 0 0 1-1.414 1.414l-1-1L9 15.828V18a1 1 0 0 1-1.707.707l-3-3A1 1 0 0 1 5 14h2.172l3.414-3.707-1-1a1 1 0 0 1 1.414-1.414l.707.707L13.293 7l-.293-.293A1 1 0 0 1 14.293 5.29L16 3z"/></svg>
+            </button>
           )}
           <span className="text-sm text-slate-800 dark:text-white font-medium truncate">{item.title}</span>
           {/* Link button */}
