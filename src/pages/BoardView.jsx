@@ -44,19 +44,19 @@ export default function BoardView({ board, onUpdateBoard, onDeleteBoard, onBack 
               onChange={(e) => setBoardName(e.target.value)}
               onBlur={handleBoardNameSave}
               onKeyDown={(e) => e.key === 'Enter' && handleBoardNameSave()}
-              className="text-xl font-semibold text-white bg-transparent border-b border-brand-400 outline-none pb-0.5"
+              className="text-xl font-semibold text-slate-900 dark:text-white bg-transparent border-b border-brand-400 outline-none pb-0.5"
               autoFocus
             />
           ) : (
             <h1
-              className="text-xl font-semibold text-white truncate cursor-pointer hover:text-brand-300 transition-colors"
+              className="text-xl font-semibold text-slate-900 dark:text-white truncate cursor-pointer hover:text-brand-300 transition-colors"
               onClick={() => { setBoardName(board.name); setEditingName(true) }}
               title="Click to rename"
             >
               {board.name}
             </h1>
           )}
-          <span className="badge bg-white/5 text-slate-400 uppercase font-mono text-[10px] tracking-wider shrink-0">
+          <span className="badge bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400 uppercase font-mono text-[10px] tracking-wider shrink-0">
             {board.scoring_model}
           </span>
         </div>
@@ -80,7 +80,7 @@ export default function BoardView({ board, onUpdateBoard, onDeleteBoard, onBack 
             <button
               onClick={() => setView('list')}
               className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                view === 'list' ? 'bg-white/10 text-white' : 'text-slate-400 hover:text-slate-200'
+                view === 'list' ? 'bg-white/10 text-white' : 'text-slate-500 dark:text-slate-400 hover:text-slate-200'
               }`}
             >
               List
@@ -88,7 +88,7 @@ export default function BoardView({ board, onUpdateBoard, onDeleteBoard, onBack 
             <button
               onClick={() => setView('matrix')}
               className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                view === 'matrix' ? 'bg-white/10 text-white' : 'text-slate-400 hover:text-slate-200'
+                view === 'matrix' ? 'bg-white/10 text-white' : 'text-slate-500 dark:text-slate-400 hover:text-slate-200'
               }`}
             >
               Matrix
@@ -132,11 +132,11 @@ export default function BoardView({ board, onUpdateBoard, onDeleteBoard, onBack 
         </div>
       ) : items.length === 0 ? (
         <div className="text-center py-20">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-white/[0.03] border border-white/[0.06] flex items-center justify-center">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.06] flex items-center justify-center">
             <svg className="w-7 h-7 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" /></svg>
           </div>
-          <h2 className="text-white font-medium mb-1">No items yet</h2>
-          <p className="text-slate-400 text-sm mb-4">Add your first feature to start scoring and ranking</p>
+          <h2 className="text-slate-900 dark:text-white font-medium mb-1">No items yet</h2>
+          <p className="text-slate-500 dark:text-slate-400 text-sm mb-4">Add your first feature to start scoring and ranking</p>
           <button onClick={() => setShowAddItem(true)} className="btn-primary">Add first item</button>
         </div>
       ) : view === 'list' ? (

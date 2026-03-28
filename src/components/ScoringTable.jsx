@@ -4,16 +4,16 @@ import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, v
 import { CSS } from '@dnd-kit/utilities'
 
 const STATUS_OPTIONS = [
-  { value: 'backlog', label: 'Backlog', classes: 'bg-white/5 text-slate-400' },
-  { value: 'planned', label: 'Planned', classes: 'bg-blue-500/10 text-blue-400' },
-  { value: 'in_progress', label: 'In progress', classes: 'bg-amber-500/10 text-amber-400' },
-  { value: 'done', label: 'Done', classes: 'bg-emerald-500/10 text-emerald-400' },
+  { value: 'backlog', label: 'Backlog', classes: 'bg-slate-100 text-slate-500 dark:bg-white/5 dark:text-slate-400' },
+  { value: 'planned', label: 'Planned', classes: 'bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400' },
+  { value: 'in_progress', label: 'In progress', classes: 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400' },
+  { value: 'done', label: 'Done', classes: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400' },
 ]
 
 function getScoreColor(score) {
-  if (score >= 150) return 'bg-emerald-500/10 text-emerald-400'
-  if (score >= 60) return 'bg-amber-500/10 text-amber-400'
-  return 'bg-red-500/10 text-red-400'
+  if (score >= 150) return 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400'
+  if (score >= 60) return 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400'
+  return 'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400'
 }
 
 function InlineNumber({ value, min, max, onChange }) {
@@ -37,7 +37,7 @@ function InlineNumber({ value, min, max, onChange }) {
           if (e.key === 'Enter') e.target.blur()
           if (e.key === 'Escape') { setDraft(value); setEditing(false) }
         }}
-        className="w-16 px-2 py-1 bg-white/10 border border-brand-400/50 rounded text-center text-sm text-white outline-none font-mono"
+        className="w-16 px-2 py-1 bg-white dark:bg-white/10 border border-brand-400/50 rounded text-center text-sm text-slate-800 dark:text-white outline-none font-mono"
         autoFocus
       />
     )
@@ -46,16 +46,58 @@ function InlineNumber({ value, min, max, onChange }) {
   return (
     <button
       onClick={() => { setDraft(value); setEditing(true) }}
-      className="w-16 px-2 py-1 rounded text-center text-sm text-slate-300 font-mono hover:bg-white/5 transition-colors cursor-text"
+      className="w-16 px-2 py-1 rounded text-center text-sm text-slate-600 dark:text-slate-300 font-mono hover:bg-slate-50 dark:hover:bg-white/5 transition-colors cursor-text"
     >
       {value}
     </button>
   )
 }
 
+function LinkIcon() {
+  return (
+    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+    </svg>
+  )
+}
+
+function ItemLinkEditor({ linkUrl, onSave, onClose }) {
+  const [url, setUrl] = useState(linkUrl || '')
+
+  return (
+    <>
+      <div className="fixed inset-0 z-10" onClick={onClose} />
+      <div className="absolute left-0 top-full mt-1 z-20 bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-lg shadow-xl p-3 min-w-[300px]">
+        <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">Link to design file, spec, or deck</p>
+        <div className="flex gap-2">
+          <input
+            type="url"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            placeholder="https://figma.com/file/..."
+            className="input-field flex-1 text-xs"
+            autoFocus
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') { onSave(url || null); onClose() }
+              if (e.key === 'Escape') onClose()
+            }}
+          />
+          <button
+            onClick={() => { onSave(url || null); onClose() }}
+            className="btn-primary text-xs px-3 py-1.5"
+          >
+            Save
+          </button>
+        </div>
+      </div>
+    </>
+  )
+}
+
 function SortableRow({ item, scoringModel, onUpdate, onDelete }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id })
   const [showMenu, setShowMenu] = useState(false)
+  const [showLinkEditor, setShowLinkEditor] = useState(false)
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -67,20 +109,55 @@ function SortableRow({ item, scoringModel, onUpdate, onDelete }) {
   const score = item.score != null ? Math.round(item.score * 10) / 10 : 0
 
   return (
-    <tr ref={setNodeRef} style={style} className="group border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors">
+    <tr ref={setNodeRef} style={style} className="group border-b border-slate-100 dark:border-white/[0.04] hover:bg-slate-50/50 dark:hover:bg-white/[0.02] transition-colors">
       <td className="py-3 px-2 w-8">
-        <button {...attributes} {...listeners} className="text-slate-600 hover:text-slate-400 cursor-grab active:cursor-grabbing transition-colors">
+        <button {...attributes} {...listeners} className="text-slate-300 dark:text-slate-600 hover:text-slate-500 dark:hover:text-slate-400 cursor-grab active:cursor-grabbing transition-colors">
           <svg className="w-4 h-4" viewBox="0 0 16 16" fill="currentColor"><circle cx="5" cy="3" r="1.2"/><circle cx="11" cy="3" r="1.2"/><circle cx="5" cy="8" r="1.2"/><circle cx="11" cy="8" r="1.2"/><circle cx="5" cy="13" r="1.2"/><circle cx="11" cy="13" r="1.2"/></svg>
         </button>
       </td>
-      <td className="py-3 px-3">
+      <td className="py-3 px-3 relative">
         <div className="flex items-center gap-1.5">
           {item.manual_rank != null && (
             <span className="text-brand-400 shrink-0" title="Manually pinned">
               <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>
             </span>
           )}
-          <span className="text-sm text-white font-medium truncate">{item.title}</span>
+          <span className="text-sm text-slate-800 dark:text-white font-medium truncate">{item.title}</span>
+          {/* Link button */}
+          {item.link_url ? (
+            <a
+              href={item.link_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-brand-400 hover:text-brand-500 shrink-0 ml-1"
+              title={item.link_url}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <LinkIcon />
+            </a>
+          ) : null}
+          <button
+            onClick={() => setShowLinkEditor(true)}
+            className={`shrink-0 ml-0.5 transition-all ${
+              item.link_url
+                ? 'opacity-0 group-hover:opacity-60 hover:!opacity-100 text-slate-400 dark:text-slate-500'
+                : 'opacity-0 group-hover:opacity-40 hover:!opacity-100 text-slate-400 dark:text-slate-500'
+            }`}
+            title={item.link_url ? 'Edit link' : 'Add link'}
+          >
+            {item.link_url ? (
+              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+            ) : (
+              <LinkIcon />
+            )}
+          </button>
+          {showLinkEditor && (
+            <ItemLinkEditor
+              linkUrl={item.link_url}
+              onSave={(url) => onUpdate(item.id, { link_url: url })}
+              onClose={() => setShowLinkEditor(false)}
+            />
+          )}
         </div>
       </td>
       {scoringModel === 'rice' && (
@@ -110,13 +187,8 @@ function SortableRow({ item, scoringModel, onUpdate, onDelete }) {
         {showMenu && (
           <>
             <div className="fixed inset-0 z-10" onClick={() => setShowMenu(false)} />
-            <div className="absolute right-0 bottom-full mb-1 z-20 bg-slate-900 border border-white/10 rounded-lg shadow-xl py-1 min-w-[150px]"
-              style={{
-                bottom: 'auto',
-                top: (() => {
-                  return undefined
-                })()
-              }}
+            <div
+              className="absolute right-0 z-20 bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-lg shadow-xl py-1 min-w-[150px]"
               ref={(el) => {
                 if (!el) return
                 const rect = el.getBoundingClientRect()
@@ -138,8 +210,8 @@ function SortableRow({ item, scoringModel, onUpdate, onDelete }) {
                 <button
                   key={s.value}
                   onClick={() => { onUpdate(item.id, { status: s.value }); setShowMenu(false) }}
-                  className={`w-full text-left px-3 py-2 text-sm hover:bg-white/5 transition-colors ${
-                    item.status === s.value ? 'text-brand-400' : 'text-slate-300'
+                  className={`w-full text-left px-3 py-2 text-sm hover:bg-slate-50 dark:hover:bg-white/5 transition-colors ${
+                    item.status === s.value ? 'text-brand-500 dark:text-brand-400' : 'text-slate-600 dark:text-slate-300'
                   }`}
                 >
                   {s.label}
@@ -152,7 +224,7 @@ function SortableRow({ item, scoringModel, onUpdate, onDelete }) {
       <td className="py-3 px-2 w-8">
         <button
           onClick={() => { if (confirm('Delete this item?')) onDelete(item.id) }}
-          className="opacity-0 group-hover:opacity-100 text-slate-600 hover:text-red-400 transition-all"
+          className="opacity-0 group-hover:opacity-100 text-slate-300 dark:text-slate-600 hover:text-red-500 dark:hover:text-red-400 transition-all"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
         </button>
@@ -181,19 +253,19 @@ export default function ScoringTable({ items, scoringModel, onUpdateItem, onDele
       <div className="overflow-x-auto" style={{ overflowY: 'visible' }}>
         <table className="w-full text-left" style={{ minHeight: items.length <= 2 ? '220px' : undefined }}>
           <thead>
-            <tr className="border-b border-white/[0.06]">
+            <tr className="border-b border-slate-200 dark:border-white/[0.06]">
               <th className="py-3 px-2 w-8" />
-              <th className="py-3 px-3 text-xs font-medium text-slate-500 uppercase tracking-wider">Feature</th>
+              <th className="py-3 px-3 text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider">Feature</th>
               {scoringModel === 'rice' && (
-                <th className="py-3 px-1 text-xs font-medium text-slate-500 uppercase tracking-wider w-18">Reach</th>
+                <th className="py-3 px-1 text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider w-18">Reach</th>
               )}
-              <th className="py-3 px-1 text-xs font-medium text-slate-500 uppercase tracking-wider w-18">Impact</th>
-              <th className="py-3 px-1 text-xs font-medium text-slate-500 uppercase tracking-wider w-18">Conf.</th>
-              <th className="py-3 px-1 text-xs font-medium text-slate-500 uppercase tracking-wider w-18">
+              <th className="py-3 px-1 text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider w-18">Impact</th>
+              <th className="py-3 px-1 text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider w-18">Conf.</th>
+              <th className="py-3 px-1 text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider w-18">
                 {scoringModel === 'ice' ? 'Ease' : 'Effort'}
               </th>
-              <th className="py-3 px-2 text-xs font-medium text-slate-500 uppercase tracking-wider w-20">Score</th>
-              <th className="py-3 px-2 text-xs font-medium text-slate-500 uppercase tracking-wider w-32">Status</th>
+              <th className="py-3 px-2 text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider w-20">Score</th>
+              <th className="py-3 px-2 text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider w-32">Status</th>
               <th className="py-3 px-2 w-8" />
             </tr>
           </thead>

@@ -8,7 +8,13 @@
     -moz-osx-font-smoothing: grayscale;
   }
   body {
-    @apply bg-slate-950 text-slate-200 font-body;
+    @apply bg-gray-50 text-slate-800 font-body transition-colors duration-200;
+  }
+  .dark body, body.dark {
+    @apply bg-slate-950 text-slate-200;
+  }
+  html.dark {
+    color-scheme: dark;
   }
   ::selection {
     @apply bg-brand-400/30;
@@ -19,28 +25,34 @@
   .btn-primary {
     @apply px-4 py-2 bg-brand-400 text-white rounded-lg font-medium text-sm
       hover:bg-brand-500 active:scale-[0.98] transition-all duration-150
-      focus:outline-none focus:ring-2 focus:ring-brand-400/50 focus:ring-offset-2 focus:ring-offset-slate-950;
+      focus:outline-none focus:ring-2 focus:ring-brand-400/50 focus:ring-offset-2
+      focus:ring-offset-white dark:focus:ring-offset-slate-950;
   }
   .btn-ghost {
-    @apply px-4 py-2 text-slate-400 rounded-lg font-medium text-sm
-      hover:bg-white/5 hover:text-slate-200 active:scale-[0.98] transition-all duration-150
-      focus:outline-none focus:ring-2 focus:ring-white/20;
+    @apply px-4 py-2 text-slate-500 dark:text-slate-400 rounded-lg font-medium text-sm
+      hover:bg-slate-100 dark:hover:bg-white/5 hover:text-slate-700 dark:hover:text-slate-200
+      active:scale-[0.98] transition-all duration-150
+      focus:outline-none focus:ring-2 focus:ring-slate-300 dark:focus:ring-white/20;
   }
   .btn-outline {
-    @apply px-4 py-2 border border-white/10 text-slate-300 rounded-lg font-medium text-sm
-      hover:bg-white/5 hover:border-white/20 active:scale-[0.98] transition-all duration-150
-      focus:outline-none focus:ring-2 focus:ring-white/20;
+    @apply px-4 py-2 border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300
+      rounded-lg font-medium text-sm
+      hover:bg-slate-50 dark:hover:bg-white/5 hover:border-slate-300 dark:hover:border-white/20
+      active:scale-[0.98] transition-all duration-150
+      focus:outline-none focus:ring-2 focus:ring-slate-300 dark:focus:ring-white/20;
   }
   .input-field {
-    @apply w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-slate-200
-      placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-400/40
-      focus:border-brand-400/60 transition-all;
+    @apply w-full px-3 py-2 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10
+      rounded-lg text-sm text-slate-800 dark:text-slate-200
+      placeholder:text-slate-400 dark:placeholder:text-slate-500
+      focus:outline-none focus:ring-2 focus:ring-brand-400/40 focus:border-brand-400/60 transition-all;
   }
   .card {
-    @apply bg-white/[0.03] border border-white/[0.06] rounded-xl;
+    @apply bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.06] rounded-xl;
   }
   .card-hover {
-    @apply card hover:bg-white/[0.06] hover:border-white/10 transition-all duration-200 cursor-pointer;
+    @apply card hover:bg-slate-50 dark:hover:bg-white/[0.06] hover:border-slate-300 dark:hover:border-white/10
+      transition-all duration-200 cursor-pointer;
   }
   .badge {
     @apply inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium;
@@ -48,15 +60,33 @@
   .score-pill {
     @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-mono font-medium;
   }
+  .surface-secondary {
+    @apply bg-slate-50 dark:bg-white/[0.04];
+  }
+  .text-primary {
+    @apply text-slate-900 dark:text-white;
+  }
+  .text-secondary {
+    @apply text-slate-500 dark:text-slate-400;
+  }
+  .text-muted {
+    @apply text-slate-400 dark:text-slate-500;
+  }
+  .border-subtle {
+    @apply border-slate-200 dark:border-white/[0.06];
+  }
+  .divider {
+    @apply border-slate-100 dark:border-white/[0.04];
+  }
 }
 
 /* Custom scrollbar */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+::-webkit-scrollbar-thumb { @apply bg-slate-300 dark:bg-white/10; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { @apply bg-slate-400 dark:bg-white/20; }
 
 /* Drag overlay */
 .drag-overlay {
-  @apply bg-slate-850 border border-brand-400/30 rounded-lg shadow-xl shadow-brand-400/10;
+  @apply bg-white dark:bg-slate-850 border border-brand-400/30 rounded-lg shadow-xl shadow-brand-400/10;
 }

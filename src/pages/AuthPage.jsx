@@ -22,8 +22,8 @@ export default function AuthPage({ onEmailSignIn, onGoogleSignIn }) {
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-brand-400/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-brand-400/3 rounded-full blur-3xl" />
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-brand-50 dark:bg-brand-400/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-brand-50 dark:bg-brand-400/3 rounded-full blur-3xl" />
       </div>
 
       <div className="relative w-full max-w-sm">
@@ -82,7 +82,7 @@ export default function AuthPage({ onEmailSignIn, onGoogleSignIn }) {
                   <div className="w-full border-t border-white/10" />
                 </div>
                 <div className="relative flex justify-center">
-                  <span className="bg-slate-950 px-3 text-xs text-slate-500">or</span>
+                  <span className="bg-gray-50 dark:bg-slate-950 px-3 text-xs text-slate-500">or</span>
                 </div>
               </div>
 

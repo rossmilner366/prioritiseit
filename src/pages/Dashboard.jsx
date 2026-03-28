@@ -34,7 +34,7 @@ export default function Dashboard({ boards, loading, onCreateBoard, onSelectBoar
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-xl font-semibold text-white">Your boards</h1>
-          <p className="text-sm text-slate-400 mt-1">{boards.length} board{boards.length !== 1 ? 's' : ''}</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{boards.length} board{boards.length !== 1 ? 's' : ''}</p>
         </div>
         <button onClick={() => setShowCreate(true)} className="btn-primary flex items-center gap-1.5">
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
@@ -79,11 +79,11 @@ export default function Dashboard({ boards, loading, onCreateBoard, onSelectBoar
         </div>
       ) : boards.length === 0 ? (
         <div className="text-center py-20">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-white/[0.03] border border-white/[0.06] flex items-center justify-center">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.06] flex items-center justify-center">
             <svg className="w-7 h-7 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
           </div>
-          <h2 className="text-white font-medium mb-1">No boards yet</h2>
-          <p className="text-slate-400 text-sm mb-4">Create your first board to start prioritising features</p>
+          <h2 className="text-slate-900 dark:text-white font-medium mb-1">No boards yet</h2>
+          <p className="text-slate-500 dark:text-slate-400 text-sm mb-4">Create your first board to start prioritising features</p>
           <button onClick={() => setShowCreate(true)} className="btn-primary">Create your first board</button>
         </div>
       ) : (
@@ -95,7 +95,7 @@ export default function Dashboard({ boards, loading, onCreateBoard, onSelectBoar
               className="card-hover p-4 group relative"
             >
               <div className="flex items-start justify-between mb-3">
-                <h3 className="font-medium text-white text-sm truncate pr-4">{b.name}</h3>
+                <h3 className="font-medium text-slate-900 dark:text-white text-sm truncate pr-4">{b.name}</h3>
                 <button
                   onClick={(e) => {
                     e.stopPropagation()
