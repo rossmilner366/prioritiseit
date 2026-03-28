@@ -2,10 +2,10 @@ import { useRef, useCallback } from 'react'
 import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceArea, ReferenceLine, Label } from 'recharts'
 
 const QUADRANTS = [
-  { key: 'quickWins', label: 'Quick wins', subtitle: 'High impact, low effort', light: 'rgba(16, 185, 129, 0.15)', dark: 'rgba(16, 185, 129, 0.12)', swatchLight: '#d1fae5', swatchDark: 'rgba(16, 185, 129, 0.35)', textClass: 'text-emerald-700 dark:text-emerald-400' },
-  { key: 'bigBets', label: 'Big bets', subtitle: 'High impact, high effort', light: 'rgba(59, 130, 246, 0.12)', dark: 'rgba(59, 130, 246, 0.10)', swatchLight: '#dbeafe', swatchDark: 'rgba(59, 130, 246, 0.35)', textClass: 'text-blue-700 dark:text-blue-400' },
-  { key: 'fillIns', label: 'Fill-ins', subtitle: 'Low impact, low effort', light: 'rgba(148, 163, 184, 0.08)', dark: 'rgba(255, 255, 255, 0.04)', swatchLight: '#f1f5f9', swatchDark: 'rgba(255, 255, 255, 0.10)', textClass: 'text-slate-500 dark:text-slate-400' },
-  { key: 'avoid', label: 'Avoid', subtitle: 'Low impact, high effort', light: 'rgba(239, 68, 68, 0.12)', dark: 'rgba(239, 68, 68, 0.10)', swatchLight: '#fee2e2', swatchDark: 'rgba(239, 68, 68, 0.35)', textClass: 'text-red-700 dark:text-red-400' },
+  { key: 'quickWins', label: 'Quick wins', subtitles: { default: 'High impact, low effort', ice: 'High impact, high ease' }, light: 'rgba(16, 185, 129, 0.15)', dark: 'rgba(16, 185, 129, 0.12)', swatchLight: '#d1fae5', swatchDark: 'rgba(16, 185, 129, 0.35)', textClass: 'text-emerald-700 dark:text-emerald-400' },
+  { key: 'bigBets', label: 'Big bets', subtitles: { default: 'High impact, high effort', ice: 'High impact, low ease' }, light: 'rgba(59, 130, 246, 0.12)', dark: 'rgba(59, 130, 246, 0.10)', swatchLight: '#dbeafe', swatchDark: 'rgba(59, 130, 246, 0.35)', textClass: 'text-blue-700 dark:text-blue-400' },
+  { key: 'fillIns', label: 'Fill-ins', subtitles: { default: 'Low impact, low effort', ice: 'Low impact, high ease' }, light: 'rgba(148, 163, 184, 0.08)', dark: 'rgba(255, 255, 255, 0.04)', swatchLight: '#f1f5f9', swatchDark: 'rgba(255, 255, 255, 0.10)', textClass: 'text-slate-500 dark:text-slate-400' },
+  { key: 'avoid', label: 'Avoid', subtitles: { default: 'Low impact, high effort', ice: 'Low impact, low ease' }, light: 'rgba(239, 68, 68, 0.12)', dark: 'rgba(239, 68, 68, 0.10)', swatchLight: '#fee2e2', swatchDark: 'rgba(239, 68, 68, 0.35)', textClass: 'text-red-700 dark:text-red-400' },
 ]
 
 function jitterOverlaps(items, effortRange, impactRange) {
@@ -47,7 +47,7 @@ function MatrixTooltip({ active, payload, scoringModel }) {
   if (!active || !payload?.length) return null
   const d = payload[0].payload
   const effortLabel = scoringModel === 'ice' ? 'Ease' : 'Effort'
-  const effortValue = d.effort
+  const effortValue = scoringModel === 'ice' ? (d._easeValue ?? d.effort) : d.effort
   return (
     <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-lg px-3 py-2.5 shadow-xl max-w-[220px]">
       <p className="text-slate-900 dark:text-white text-sm font-medium mb-1.5">{d.title}</p>
@@ -99,17 +99,18 @@ export default function MatrixView({ items, boardName, scoringModel = 'rice' }) 
 
   const isIce = scoringModel === 'ice'
 
-  const maxEffort = Math.max(isIce ? 10 : 5, ...items.map(d => d.effort))
-  const maxImpact = Math.max(isIce ? 10 : 3, ...items.map(d => d.impact))
+  // For ICE, invert ease so ease=10 (easiest) plots on the left like "low effort".
+  // Domain is fixed 0–10 for ICE; tickFormatter converts back to show original ease labels.
+  const maxEffort = isIce ? 10 : Math.max(5, ...items.map(d => d.effort))
+  const maxImpact = isIce ? 10 : Math.max(3, ...items.map(d => d.impact))
   const midEffort = maxEffort / 2
   const midImpact = maxImpact / 2
 
-  const data = jitterOverlaps(items, maxEffort, maxImpact)
+  const matrixItems = isIce
+    ? items.map(i => ({ ...i, effort: 11 - i.effort, _easeValue: i.effort }))
+    : items
 
-  // For ICE, ease axis is reversed (10=easiest on left), so quadrant x-coords are swapped
-  const qx = isIce
-    ? { quickWins: [midEffort, maxEffort], bigBets: [0, midEffort], fillIns: [midEffort, maxEffort], avoid: [0, midEffort] }
-    : { quickWins: [0, midEffort], bigBets: [midEffort, maxEffort], fillIns: [0, midEffort], avoid: [midEffort, maxEffort] }
+  const data = jitterOverlaps(matrixItems, maxEffort, maxImpact)
 
   const q = (key) => {
     const quad = QUADRANTS.find(q => q.key === key)
@@ -191,7 +192,7 @@ export default function MatrixView({ items, boardName, scoringModel = 'rice' }) 
       URL.revokeObjectURL(url)
     }
     img.src = url
-  }, [items, boardName, isDark])
+  }, [items, boardName, isDark, scoringModel])
 
   return (
     <div className="card p-6">
@@ -206,7 +207,7 @@ export default function MatrixView({ items, boardName, scoringModel = 'rice' }) 
             >
               <div className="min-w-0">
                 <p className={`text-sm font-medium ${quad.textClass}`}>{quad.label}</p>
-                <p className="text-xs text-slate-400 dark:text-slate-500 truncate">{quad.subtitle}</p>
+                <p className="text-xs text-slate-400 dark:text-slate-500 truncate">{quad.subtitles[scoringModel] ?? quad.subtitles.default}</p>
               </div>
             </div>
           ))}
@@ -228,10 +229,10 @@ export default function MatrixView({ items, boardName, scoringModel = 'rice' }) 
           <ScatterChart margin={{ top: 20, right: 30, bottom: 30, left: 10 }}>
             <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
 
-            <ReferenceArea x1={qx.quickWins[0]} x2={qx.quickWins[1]} y1={midImpact} y2={maxImpact} fill={q('quickWins')} />
-            <ReferenceArea x1={qx.bigBets[0]} x2={qx.bigBets[1]} y1={midImpact} y2={maxImpact} fill={q('bigBets')} />
-            <ReferenceArea x1={qx.fillIns[0]} x2={qx.fillIns[1]} y1={0} y2={midImpact} fill={q('fillIns')} />
-            <ReferenceArea x1={qx.avoid[0]} x2={qx.avoid[1]} y1={0} y2={midImpact} fill={q('avoid')} />
+            <ReferenceArea x1={0} x2={midEffort} y1={midImpact} y2={maxImpact} fill={q('quickWins')} />
+            <ReferenceArea x1={midEffort} x2={maxEffort} y1={midImpact} y2={maxImpact} fill={q('bigBets')} />
+            <ReferenceArea x1={0} x2={midEffort} y1={0} y2={midImpact} fill={q('fillIns')} />
+            <ReferenceArea x1={midEffort} x2={maxEffort} y1={0} y2={midImpact} fill={q('avoid')} />
 
             <ReferenceLine x={midEffort} stroke={dividerStroke} strokeDasharray="6 4" strokeWidth={1.5} />
             <ReferenceLine y={midImpact} stroke={dividerStroke} strokeDasharray="6 4" strokeWidth={1.5} />
@@ -239,7 +240,8 @@ export default function MatrixView({ items, boardName, scoringModel = 'rice' }) 
             <XAxis
               dataKey="_effort"
               type="number"
-              domain={isIce ? [maxEffort, 0] : [0, maxEffort]}
+              domain={[0, maxEffort]}
+              tickFormatter={isIce ? (v) => v === 0 ? '' : 11 - v : undefined}
               tick={{ fill: '#64748b', fontSize: 12 }}
               axisLine={{ stroke: axisStroke }}
               tickLine={false}
