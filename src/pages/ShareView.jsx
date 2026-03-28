@@ -142,16 +142,18 @@ export default function ShareView() {
             >
               Ranked list
             </button>
-            <button
-              onClick={() => setView('matrix')}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                view === 'matrix'
-                  ? 'bg-white dark:bg-white/10 text-slate-900 dark:text-white shadow-sm'
-                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
-              }`}
-            >
-              Impact / effort matrix
-            </button>
+            {board.scoring_model !== 'wsjf' && (
+              <button
+                onClick={() => setView('matrix')}
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                  view === 'matrix'
+                    ? 'bg-white dark:bg-white/10 text-slate-900 dark:text-white shadow-sm'
+                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+                }`}
+              >
+                Impact / effort matrix
+              </button>
+            )}
           </div>
         </div>
 
@@ -206,7 +208,7 @@ export default function ShareView() {
             </div>
           )
         })() : (
-          <MatrixView items={items} />
+          <MatrixView items={items} scoringModel={board.scoring_model} />
         )}
 
         {/* Footer */}

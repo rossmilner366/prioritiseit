@@ -110,14 +110,16 @@ export default function BoardView({ board, onUpdateBoard, onDeleteBoard, onBack 
             >
               List
             </button>
-            <button
-              onClick={() => setView('matrix')}
-              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                view === 'matrix' ? 'bg-white dark:bg-white/10 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
-              }`}
-            >
-              Matrix
-            </button>
+            {board.scoring_model !== 'wsjf' && (
+              <button
+                onClick={() => setView('matrix')}
+                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                  view === 'matrix' ? 'bg-white dark:bg-white/10 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+                }`}
+              >
+                Matrix
+              </button>
+            )}
           </div>
 
           {isOwner && (
@@ -222,7 +224,7 @@ export default function BoardView({ board, onUpdateBoard, onDeleteBoard, onBack 
           )}
         </div>
       ) : (
-        <MatrixView items={items} boardName={board.name} />
+        <MatrixView items={items} boardName={board.name} scoringModel={board.scoring_model} />
       )}
 
       {showShare && (

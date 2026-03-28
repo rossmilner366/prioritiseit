@@ -43,9 +43,11 @@ function jitterOverlaps(items, effortRange, impactRange) {
   return result
 }
 
-function MatrixTooltip({ active, payload }) {
+function MatrixTooltip({ active, payload, scoringModel }) {
   if (!active || !payload?.length) return null
   const d = payload[0].payload
+  const effortLabel = scoringModel === 'ice' ? 'Ease' : 'Effort'
+  const effortValue = scoringModel === 'ice' ? d._originalEffort : d.effort
   return (
     <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-lg px-3 py-2.5 shadow-xl max-w-[220px]">
       <p className="text-slate-900 dark:text-white text-sm font-medium mb-1.5">{d.title}</p>
@@ -55,8 +57,8 @@ function MatrixTooltip({ active, payload }) {
           <p className="text-slate-700 dark:text-slate-300 font-medium">{d.impact}</p>
         </div>
         <div>
-          <p className="text-slate-400 dark:text-slate-500">Effort</p>
-          <p className="text-slate-700 dark:text-slate-300 font-medium">{d.effort}</p>
+          <p className="text-slate-400 dark:text-slate-500">{effortLabel}</p>
+          <p className="text-slate-700 dark:text-slate-300 font-medium">{effortValue}</p>
         </div>
         <div>
           <p className="text-slate-400 dark:text-slate-500">Score</p>
@@ -91,16 +93,21 @@ function useIsDark() {
   return document.documentElement.classList.contains('dark')
 }
 
-export default function MatrixView({ items, boardName }) {
+export default function MatrixView({ items, boardName, scoringModel = 'rice' }) {
   const isDark = useIsDark()
   const chartRef = useRef(null)
 
-  const maxEffort = Math.max(5, ...items.map(d => d.effort))
-  const maxImpact = Math.max(3, ...items.map(d => d.impact))
+  // For ICE, ease is inverted (higher = easier), so we flip it for correct quadrant placement
+  const matrixItems = scoringModel === 'ice'
+    ? items.map(i => ({ ...i, _originalEffort: i.effort, effort: 11 - i.effort }))
+    : items
+
+  const maxEffort = Math.max(5, ...matrixItems.map(d => d.effort))
+  const maxImpact = Math.max(3, ...matrixItems.map(d => d.impact))
   const midEffort = maxEffort / 2
   const midImpact = maxImpact / 2
 
-  const data = jitterOverlaps(items, maxEffort, maxImpact)
+  const data = jitterOverlaps(matrixItems, maxEffort, maxImpact)
 
   const q = (key) => {
     const quad = QUADRANTS.find(q => q.key === key)
@@ -235,7 +242,7 @@ export default function MatrixView({ items, boardName }) {
               axisLine={{ stroke: axisStroke }}
               tickLine={false}
             >
-              <Label value="Effort →" position="insideBottom" offset={-15} style={{ fill: '#64748b', fontSize: 13, fontWeight: 500 }} />
+              <Label value={scoringModel === 'ice' ? 'Ease →' : 'Effort →'} position="insideBottom" offset={-15} style={{ fill: '#64748b', fontSize: 13, fontWeight: 500 }} />
             </XAxis>
             <YAxis
               dataKey="_impact"
@@ -247,7 +254,7 @@ export default function MatrixView({ items, boardName }) {
             >
               <Label value="Impact →" angle={-90} position="insideLeft" offset={5} style={{ fill: '#64748b', fontSize: 13, fontWeight: 500 }} />
             </YAxis>
-            <Tooltip content={<MatrixTooltip />} cursor={false} />
+            <Tooltip content={<MatrixTooltip scoringModel={scoringModel} />} cursor={false} />
             <Scatter data={data} shape={<MatrixDot />} />
           </ScatterChart>
         </ResponsiveContainer>
