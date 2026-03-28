@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="PrioritiseIt — Score, rank, and share feature priorities with your team. RICE & ICE scoring for product teams. Free to start.">
+  <title>PrioritiseIt — Feature prioritisation for product teams</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='bg' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%232BA8D4'/%3E%3Cstop offset='100%25' stop-color='%231E7DA0'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='7' fill='url(%23bg)'/%3E%3Crect x='7' y='9' width='4' height='16' rx='2' fill='white' opacity='0.95'/%3E%3Crect x='14' y='13' width='4' height='12' rx='2' fill='white' opacity='0.65'/%3E%3Crect x='21' y='17' width='4' height='8' rx='2' fill='white' opacity='0.35'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --brand: #2596BE;
+      --brand-light: #2BA8D4;
+      --brand-dark: #1E7DA0;
+      --brand-deep: #176482;
+      --brand-50: #EDF8FC;
+      --brand-100: #D5EFF8;
+      --text: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #94a3b8;
+      --bg: #ffffff;
+      --bg-subtle: #f8fafc;
+      --border: #e2e8f0;
+      --border-light: #f1f5f9;
+    }
+    html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+    body { font-family: 'Outfit', sans-serif; color: var(--text); background: var(--bg); line-height: 1.6; }
+    a { color: inherit; text-decoration: none; }
+    .container { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+
+    /* NAV */
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 50; background: rgba(255,255,255,0.85); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border-light); }
+    .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+    .nav-logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; }
+    .nav-logo svg { width: 32px; height: 32px; }
+    .nav-logo .it { color: var(--brand); }
+    .nav-links { display: flex; align-items: center; gap: 32px; }
+    .nav-links a { font-size: 14px; font-weight: 500; color: var(--text-secondary); transition: color 0.15s; }
+    .nav-links a:hover { color: var(--text); }
+    .btn { display: inline-flex; align-items: center; gap: 8px; font-family: inherit; font-weight: 600; border: none; cursor: pointer; transition: all 0.15s; }
+    .btn-primary { background: var(--brand); color: white; padding: 10px 24px; border-radius: 10px; font-size: 15px; }
+    .btn-primary:hover { background: var(--brand-dark); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(37,150,190,0.25); }
+    .btn-ghost { background: none; color: var(--text-secondary); padding: 10px 20px; border-radius: 10px; font-size: 14px; }
+    .btn-ghost:hover { background: var(--bg-subtle); color: var(--text); }
+    .btn-outline-hero { background: white; color: var(--text); padding: 14px 28px; border-radius: 12px; font-size: 16px; border: 1px solid var(--border); }
+    .btn-outline-hero:hover { border-color: var(--brand); color: var(--brand); transform: translateY(-1px); }
+    .btn-cta { background: var(--brand); color: white; padding: 14px 32px; border-radius: 12px; font-size: 16px; }
+    .btn-cta:hover { background: var(--brand-dark); transform: translateY(-1px); box-shadow: 0 4px 20px rgba(37,150,190,0.3); }
+
+    /* HERO */
+    .hero { padding: 140px 0 80px; text-align: center; position: relative; overflow: hidden; }
+    .hero::before { content: ''; position: absolute; top: -200px; left: 50%; transform: translateX(-50%); width: 900px; height: 900px; background: radial-gradient(circle, var(--brand-50) 0%, transparent 70%); pointer-events: none; }
+    .hero-badge { display: inline-flex; align-items: center; gap: 6px; background: var(--brand-50); color: var(--brand-dark); font-size: 13px; font-weight: 600; padding: 6px 14px; border-radius: 100px; margin-bottom: 24px; position: relative; }
+    .hero h1 { font-size: clamp(36px, 5.5vw, 64px); font-weight: 700; line-height: 1.1; letter-spacing: -0.03em; margin-bottom: 20px; position: relative; }
+    .hero h1 .accent { color: var(--brand); }
+    .hero p { font-size: 18px; color: var(--text-secondary); max-width: 540px; margin: 0 auto 36px; line-height: 1.7; position: relative; }
+    .hero-buttons { display: flex; gap: 12px; justify-content: center; position: relative; }
+    .hero-visual { margin-top: 64px; position: relative; }
+    .hero-visual img, .hero-visual .mock { border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 24px 80px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.04); }
+
+    /* MOCK SCREENSHOT */
+    .mock { background: var(--bg); padding: 20px; max-width: 900px; margin: 0 auto; }
+    .mock-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border-light); }
+    .mock-title { font-weight: 600; font-size: 16px; }
+    .mock-badges { display: flex; gap: 6px; }
+    .mock-badge { font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .mock-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .mock-table th { text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); font-weight: 500; padding: 8px 12px; border-bottom: 1px solid var(--border-light); }
+    .mock-table td { padding: 12px; border-bottom: 1px solid var(--border-light); }
+    .mock-table .feat { font-weight: 500; }
+    .mock-table .num { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-secondary); }
+    .score-pill { display: inline-block; padding: 2px 10px; border-radius: 100px; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 500; }
+    .score-g { background: #ecfdf5; color: #059669; }
+    .score-a { background: #fffbeb; color: #d97706; }
+    .status-badge { font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 4px; }
+    .status-p { background: #eff6ff; color: #2563eb; }
+    .status-ip { background: #fffbeb; color: #d97706; }
+    .status-b { background: #f8fafc; color: #64748b; }
+
+    /* FEATURES */
+    .features { padding: 100px 0; }
+    .section-label { font-size: 13px; font-weight: 600; color: var(--brand); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; }
+    .section-title { font-size: clamp(28px, 3.5vw, 40px); font-weight: 700; letter-spacing: -0.02em; margin-bottom: 16px; }
+    .section-desc { font-size: 17px; color: var(--text-secondary); max-width: 520px; line-height: 1.7; margin-bottom: 56px; }
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+    .feature-card { padding: 28px; border-radius: 16px; border: 1px solid var(--border-light); background: var(--bg); transition: all 0.2s; }
+    .feature-card:hover { border-color: var(--border); box-shadow: 0 8px 32px rgba(0,0,0,0.04); transform: translateY(-2px); }
+    .feature-icon { width: 44px; height: 44px; border-radius: 12px; background: var(--brand-50); display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
+    .feature-icon svg { width: 22px; height: 22px; color: var(--brand); }
+    .feature-card h3 { font-size: 17px; font-weight: 600; margin-bottom: 8px; }
+    .feature-card p { font-size: 14px; color: var(--text-secondary); line-height: 1.65; }
+
+    /* HOW IT WORKS */
+    .how { padding: 100px 0; background: var(--bg-subtle); }
+    .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 32px; margin-top: 56px; }
+    .step { text-align: center; }
+    .step-num { width: 48px; height: 48px; border-radius: 14px; background: var(--brand); color: white; font-weight: 700; font-size: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+    .step h3 { font-size: 17px; font-weight: 600; margin-bottom: 8px; }
+    .step p { font-size: 14px; color: var(--text-secondary); line-height: 1.6; max-width: 260px; margin: 0 auto; }
+
+    /* PRICING */
+    .pricing { padding: 100px 0; }
+    .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; max-width: 960px; margin: 56px auto 0; }
+    .price-card { border-radius: 16px; border: 1px solid var(--border-light); padding: 32px; position: relative; background: var(--bg); }
+    .price-card.featured { border: 2px solid var(--brand); box-shadow: 0 8px 40px rgba(37,150,190,0.12); }
+    .price-card.featured::before { content: 'Most popular'; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--brand); color: white; font-size: 11px; font-weight: 600; padding: 4px 14px; border-radius: 100px; letter-spacing: 0.3px; }
+    .price-tier { font-size: 14px; font-weight: 600; color: var(--brand-dark); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+    .price-amount { font-size: 48px; font-weight: 700; letter-spacing: -0.03em; margin-bottom: 4px; }
+    .price-amount .currency { font-size: 24px; font-weight: 500; vertical-align: top; margin-right: 2px; line-height: 1.8; }
+    .price-amount .period { font-size: 16px; font-weight: 400; color: var(--text-muted); }
+    .price-desc { font-size: 14px; color: var(--text-secondary); margin-bottom: 24px; line-height: 1.5; }
+    .price-features { list-style: none; margin-bottom: 28px; }
+    .price-features li { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: var(--text-secondary); padding: 6px 0; }
+    .price-features li svg { width: 18px; height: 18px; color: var(--brand); flex-shrink: 0; margin-top: 1px; }
+    .price-btn { display: block; width: 100%; text-align: center; padding: 12px; border-radius: 10px; font-family: inherit; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+    .price-btn-free { background: var(--bg-subtle); color: var(--text); border: 1px solid var(--border); }
+    .price-btn-free:hover { background: var(--border-light); border-color: var(--border); }
+    .price-btn-pro { background: var(--brand); color: white; border: none; }
+    .price-btn-pro:hover { background: var(--brand-dark); }
+    .price-btn-team { background: white; color: var(--text); border: 1px solid var(--border); }
+    .price-btn-team:hover { border-color: var(--brand); color: var(--brand); }
+    .annual-note { text-align: center; margin-top: 20px; font-size: 13px; color: var(--text-muted); }
+
+    /* COMPARE */
+    .compare { padding: 60px 0 100px; }
+    .compare-table-wrap { overflow-x: auto; max-width: 800px; margin: 40px auto 0; }
+    .compare-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .compare-table th { text-align: left; font-size: 13px; font-weight: 600; padding: 12px 16px; border-bottom: 2px solid var(--border); }
+    .compare-table th:not(:first-child) { text-align: center; }
+    .compare-table td { padding: 10px 16px; border-bottom: 1px solid var(--border-light); }
+    .compare-table td:not(:first-child) { text-align: center; color: var(--text-secondary); }
+    .compare-table .tool-name { font-weight: 500; }
+    .compare-table .price-col { font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+    .compare-table .highlight { background: var(--brand-50); }
+    .compare-table .highlight td { font-weight: 500; color: var(--text); }
+
+    /* CTA */
+    .cta { padding: 80px 0; text-align: center; background: linear-gradient(135deg, var(--brand) 0%, var(--brand-deep) 100%); color: white; }
+    .cta h2 { font-size: clamp(28px, 3.5vw, 40px); font-weight: 700; letter-spacing: -0.02em; margin-bottom: 12px; }
+    .cta p { font-size: 17px; opacity: 0.8; margin-bottom: 32px; }
+    .cta .btn-cta { background: white; color: var(--brand-deep); }
+    .cta .btn-cta:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+
+    /* FOOTER */
+    footer { padding: 40px 0; border-top: 1px solid var(--border-light); }
+    .footer-inner { display: flex; align-items: center; justify-content: space-between; }
+    .footer-text { font-size: 13px; color: var(--text-muted); }
+
+    /* ANIMATIONS */
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .hero h1, .hero p, .hero-buttons, .hero-badge { animation: fadeUp 0.6s ease-out both; }
+    .hero-badge { animation-delay: 0s; }
+    .hero h1 { animation-delay: 0.1s; }
+    .hero p { animation-delay: 0.2s; }
+    .hero-buttons { animation-delay: 0.3s; }
+    .hero-visual { animation: fadeUp 0.8s ease-out 0.4s both; }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .nav-links a:not(.btn) { display: none; }
+      .hero-buttons { flex-direction: column; align-items: center; }
+      .hero-buttons .btn { width: 100%; max-width: 280px; justify-content: center; }
+      .mock { padding: 12px; }
+      .mock-table th:nth-child(n+4), .mock-table td:nth-child(n+4) { display: none; }
+      .footer-inner { flex-direction: column; gap: 12px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="container nav-inner">
+    <a href="#" class="nav-logo">
+      <svg viewBox="0 0 512 512"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#2BA8D4"/><stop offset="100%" stop-color="#1E7DA0"/></linearGradient></defs><rect width="512" height="512" rx="108" fill="url(#lg)"/><rect x="120" y="148" width="56" height="248" rx="28" fill="white" opacity="0.95"/><rect x="228" y="208" width="56" height="188" rx="28" fill="white" opacity="0.65"/><rect x="336" y="268" width="56" height="128" rx="28" fill="white" opacity="0.35"/><path d="M148 128 L148 100 L128 120 M148 100 L168 120" stroke="white" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.95"/></svg>
+      Prioritise<span class="it">It</span>
+    </a>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#compare">Compare</a>
+      <a href="https://prioritiseit.netlify.app" class="btn btn-primary">Get started free</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge">New — now with team collaboration</div>
+    <h1>Score features.<br>Share the <span class="accent">why</span>.</h1>
+    <p>The fastest way for product teams to go from a list of ideas to a stakeholder-ready priority view. RICE &amp; ICE scoring, one-click sharing, no spreadsheet required.</p>
+    <div class="hero-buttons">
+      <a href="https://prioritiseit.netlify.app" class="btn btn-cta">Start prioritising — it's free</a>
+      <a href="#pricing" class="btn btn-outline-hero">View pricing</a>
+    </div>
+
+    <div class="hero-visual">
+      <div class="mock">
+        <div class="mock-header">
+          <span class="mock-title">Q2 Shopfront Roadmap</span>
+          <div class="mock-badges">
+            <span class="mock-badge" style="background:#EDF8FC;color:#1E7DA0;">RICE</span>
+            <span class="mock-badge" style="background:#ecfdf5;color:#059669;">Shared</span>
+          </div>
+        </div>
+        <table class="mock-table">
+          <thead><tr><th>Feature</th><th>Reach</th><th>Impact</th><th>Conf.</th><th>Effort</th><th>Score</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td class="feat">Search autocomplete</td><td class="num">85</td><td class="num">3</td><td class="num">3</td><td class="num">2</td><td><span class="score-pill score-g">382.5</span></td><td><span class="status-badge status-ip">In progress</span></td></tr>
+            <tr><td class="feat">Express delivery slot</td><td class="num">70</td><td class="num">3</td><td class="num">2</td><td class="num">3</td><td><span class="score-pill score-g">140.0</span></td><td><span class="status-badge status-p">Planned</span></td></tr>
+            <tr><td class="feat">Product annotations</td><td class="num">60</td><td class="num">2</td><td class="num">3</td><td class="num">2</td><td><span class="score-pill score-g">180.0</span></td><td><span class="status-badge status-p">Planned</span></td></tr>
+            <tr><td class="feat">Deal builder</td><td class="num">45</td><td class="num">2</td><td class="num">2</td><td class="num">4</td><td><span class="score-pill score-a">45.0</span></td><td><span class="status-badge status-b">Backlog</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="container">
+    <div class="section-label">Features</div>
+    <div class="section-title">Everything you need.<br>Nothing you don't.</div>
+    <div class="section-desc">Purpose-built for prioritisation. Not a project management suite, not a roadmap tool — just the scoring and sharing part, done properly.</div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg></div>
+        <h3>RICE &amp; ICE scoring</h3>
+        <p>Choose your framework per board. Auto-calculated scores with live re-ranking. Built-in scoring guide so your team scores consistently.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg></div>
+        <h3>Stakeholder sharing</h3>
+        <p>One click generates a read-only link. Stakeholders see the ranked list and matrix — no login required. Revoke access any time.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div>
+        <h3>Impact/effort matrix</h3>
+        <p>Visual 2&times;2 scatter plot with Quick Wins, Big Bets, Fill-ins, and Avoid quadrants. Export as PNG for your slide deck.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg></div>
+        <h3>Team collaboration</h3>
+        <p>Invite colleagues as editors or viewers. Score features together, drag to reorder, and see changes in real time.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/></svg></div>
+        <h3>Drag-and-drop override</h3>
+        <p>Override the calculated ranking when you know something the formula doesn't. Pinned items are visually flagged so stakeholders can see the judgement call.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg></div>
+        <h3>Link to specs &amp; designs</h3>
+        <p>Attach a URL to each feature — Figma files, Google Docs, Confluence pages, PowerPoint decks. Everything in context.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how">
+  <div class="container">
+    <div class="section-label" style="text-align:center;">How it works</div>
+    <div class="section-title" style="text-align:center;">Three steps to clarity</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h3>Add your features</h3>
+        <p>List the features, ideas, or initiatives you're considering. Add as many as you need.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h3>Score them</h3>
+        <p>Rate each feature on Reach, Impact, Confidence, and Effort. The app calculates and ranks automatically.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h3>Share the link</h3>
+        <p>One click generates a stakeholder-ready view. No login needed. Never argue about "why X before Y" again.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+  <div class="container">
+    <div class="section-label" style="text-align:center;">Pricing</div>
+    <div class="section-title" style="text-align:center;">Simple, transparent pricing</div>
+    <div class="section-desc" style="text-align:center;margin:16px auto 0;">Start free. Upgrade when your team grows.</div>
+    <div class="pricing-grid">
+
+      <!-- FREE -->
+      <div class="price-card">
+        <div class="price-tier">Free</div>
+        <div class="price-amount"><span class="currency">£</span>0</div>
+        <div class="price-desc">For solo PMs getting started with structured prioritisation.</div>
+        <ul class="price-features">
+          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>1 board, up to 15 items</li>
+          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>RICE &amp; ICE scoring</li>
+          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Shareable stakeholder link</li>
+          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>2&times;2 impact/effort matrix</li>
+          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>PNG export</li>
+        </ul>
+        <a href="https://prioritiseit.netlify.app" class="btn price-btn price-btn-free">Get started</a>
+      </div>
+
+      <!-- PRO -->
+      <div class="price-card featured">
+        <div class="price-tier">Pro</div>
+        <div class="price-amount"><span class="currency">£</span>6<span class="period">/user/mo</span></div>
+        <div class="price-desc">For product teams who need collaboration and unlimited boards.</div>
+        <ul class="price-features">
+          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Unlimited boards &amp; items</li>
+          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Team collaboration (editors &amp; viewers)</li>
+          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Link attachments on items</li>
+          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>CSV export</li>
+          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Board descriptions</li>
+          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Priority support</li>
+        </ul>
+        <a href="https://prioritiseit.netlify.app" class="btn price-btn price-btn-pro">Start 14-day free trial</a>
+      </div>
+
+      <!-- TEAM -->
+      <div class="price-card">
+        <div class="price-tier">Team</div>
+        <div class="price-amount"><span class="currency">£</span>12<span class="period">/user/mo</span></div>
+        <div class="price-desc">For organisations with multiple product teams and advanced needs.</div>
+        <ul class="price-features">
+          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Everything in Pro</li>
+          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Custom scoring frameworks</li>
+          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Decision changelog</li>
+          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Jira / Linear import</li>
+          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>SSO &amp; API access</li>
+          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Admin controls &amp; audit log</li>
+        </ul>
+        <a href="#" class="btn price-btn price-btn-team">Coming soon</a>
+      </div>
+    </div>
+    <p class="annual-note">Annual billing available at 20% discount. All prices exclude VAT.</p>
+  </div>
+</section>
+
+<!-- COMPARE -->
+<section class="compare" id="compare">
+  <div class="container">
+    <div class="section-title" style="text-align:center;">How we compare</div>
+    <div class="compare-table-wrap">
+      <table class="compare-table">
+        <thead>
+          <tr><th>Tool</th><th>Price</th><th>RICE scoring</th><th>Stakeholder link</th><th>Collaboration</th></tr>
+        </thead>
+        <tbody>
+          <tr class="highlight"><td class="tool-name">PrioritiseIt</td><td class="price-col">Free / £6</td><td>&#10003;</td><td>&#10003;</td><td>&#10003;</td></tr>
+          <tr><td class="tool-name">Airfocus</td><td class="price-col">£59+/mo</td><td>&#10003;</td><td>&#10005;</td><td>&#10003;</td></tr>
+          <tr><td class="tool-name">Productboard</td><td class="price-col">£25+/mo</td><td>Legacy only</td><td>&#10005;</td><td>&#10003;</td></tr>
+          <tr><td class="tool-name">Google Sheets</td><td class="price-col">Free</td><td>Manual</td><td>&#10005;</td><td>&#10003;</td></tr>
+          <tr><td class="tool-name">Free calculators</td><td class="price-col">Free</td><td>&#10003;</td><td>&#10005;</td><td>&#10005;</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta">
+  <div class="container">
+    <h2>Stop debating priorities.<br>Start sharing them.</h2>
+    <p>Free to start. No credit card required. Score your first feature in under 60 seconds.</p>
+    <a href="https://prioritiseit.netlify.app" class="btn btn-cta">Get started for free</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container footer-inner">
+    <div class="nav-logo" style="font-size:15px;">
+      <svg viewBox="0 0 512 512" width="24" height="24"><defs><linearGradient id="lg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#2BA8D4"/><stop offset="100%" stop-color="#1E7DA0"/></linearGradient></defs><rect width="512" height="512" rx="108" fill="url(#lg2)"/><rect x="120" y="148" width="56" height="248" rx="28" fill="white" opacity="0.95"/><rect x="228" y="208" width="56" height="188" rx="28" fill="white" opacity="0.65"/><rect x="336" y="268" width="56" height="128" rx="28" fill="white" opacity="0.35"/></svg>
+      Prioritise<span class="it">It</span>
+    </div>
+    <div class="footer-text">&copy; 2026 PrioritiseIt. Made for product teams who ship.</div>
+  </div>
+</footer>
+
+</body>
+</html>
