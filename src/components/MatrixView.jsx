@@ -47,7 +47,7 @@ function MatrixTooltip({ active, payload, scoringModel }) {
   if (!active || !payload?.length) return null
   const d = payload[0].payload
   const effortLabel = scoringModel === 'ice' ? 'Ease' : 'Effort'
-  const effortValue = scoringModel === 'ice' ? d._originalEffort : d.effort
+  const effortValue = d.effort
   return (
     <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-lg px-3 py-2.5 shadow-xl max-w-[220px]">
       <p className="text-slate-900 dark:text-white text-sm font-medium mb-1.5">{d.title}</p>
@@ -97,17 +97,19 @@ export default function MatrixView({ items, boardName, scoringModel = 'rice' }) 
   const isDark = useIsDark()
   const chartRef = useRef(null)
 
-  // For ICE, ease is inverted (higher = easier), so we flip it for correct quadrant placement
-  const matrixItems = scoringModel === 'ice'
-    ? items.map(i => ({ ...i, _originalEffort: i.effort, effort: 11 - i.effort }))
-    : items
+  const isIce = scoringModel === 'ice'
 
-  const maxEffort = Math.max(5, ...matrixItems.map(d => d.effort))
-  const maxImpact = Math.max(3, ...matrixItems.map(d => d.impact))
+  const maxEffort = Math.max(isIce ? 10 : 5, ...items.map(d => d.effort))
+  const maxImpact = Math.max(isIce ? 10 : 3, ...items.map(d => d.impact))
   const midEffort = maxEffort / 2
   const midImpact = maxImpact / 2
 
-  const data = jitterOverlaps(matrixItems, maxEffort, maxImpact)
+  const data = jitterOverlaps(items, maxEffort, maxImpact)
+
+  // For ICE, ease axis is reversed (10=easiest on left), so quadrant x-coords are swapped
+  const qx = isIce
+    ? { quickWins: [midEffort, maxEffort], bigBets: [0, midEffort], fillIns: [midEffort, maxEffort], avoid: [0, midEffort] }
+    : { quickWins: [0, midEffort], bigBets: [midEffort, maxEffort], fillIns: [0, midEffort], avoid: [midEffort, maxEffort] }
 
   const q = (key) => {
     const quad = QUADRANTS.find(q => q.key === key)
@@ -226,10 +228,10 @@ export default function MatrixView({ items, boardName, scoringModel = 'rice' }) 
           <ScatterChart margin={{ top: 20, right: 30, bottom: 30, left: 10 }}>
             <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
 
-            <ReferenceArea x1={0} x2={midEffort} y1={midImpact} y2={maxImpact} fill={q('quickWins')} />
-            <ReferenceArea x1={midEffort} x2={maxEffort} y1={midImpact} y2={maxImpact} fill={q('bigBets')} />
-            <ReferenceArea x1={0} x2={midEffort} y1={0} y2={midImpact} fill={q('fillIns')} />
-            <ReferenceArea x1={midEffort} x2={maxEffort} y1={0} y2={midImpact} fill={q('avoid')} />
+            <ReferenceArea x1={qx.quickWins[0]} x2={qx.quickWins[1]} y1={midImpact} y2={maxImpact} fill={q('quickWins')} />
+            <ReferenceArea x1={qx.bigBets[0]} x2={qx.bigBets[1]} y1={midImpact} y2={maxImpact} fill={q('bigBets')} />
+            <ReferenceArea x1={qx.fillIns[0]} x2={qx.fillIns[1]} y1={0} y2={midImpact} fill={q('fillIns')} />
+            <ReferenceArea x1={qx.avoid[0]} x2={qx.avoid[1]} y1={0} y2={midImpact} fill={q('avoid')} />
 
             <ReferenceLine x={midEffort} stroke={dividerStroke} strokeDasharray="6 4" strokeWidth={1.5} />
             <ReferenceLine y={midImpact} stroke={dividerStroke} strokeDasharray="6 4" strokeWidth={1.5} />
@@ -237,7 +239,7 @@ export default function MatrixView({ items, boardName, scoringModel = 'rice' }) 
             <XAxis
               dataKey="_effort"
               type="number"
-              domain={[0, maxEffort]}
+              domain={isIce ? [maxEffort, 0] : [0, maxEffort]}
               tick={{ fill: '#64748b', fontSize: 12 }}
               axisLine={{ stroke: axisStroke }}
               tickLine={false}

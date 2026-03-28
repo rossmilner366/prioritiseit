@@ -10,10 +10,12 @@ const QUADRANT_INFO = {
   avoid:     { label: 'Avoid',     classes: 'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400' },
 }
 
-function getQuadrant(item, midEffort, midImpact) {
-  if (item.impact > midImpact && item.effort <= midEffort) return 'quickWins'
-  if (item.impact > midImpact && item.effort > midEffort) return 'bigBets'
-  if (item.impact <= midImpact && item.effort <= midEffort) return 'fillIns'
+function getQuadrant(item, midEffort, midImpact, scoringModel) {
+  // ICE: ease is higher=easier, so high ease = low effort = quick wins (comparison flipped)
+  const isEasy = scoringModel === 'ice' ? item.effort > midEffort : item.effort <= midEffort
+  if (item.impact > midImpact && isEasy) return 'quickWins'
+  if (item.impact > midImpact && !isEasy) return 'bigBets'
+  if (item.impact <= midImpact && isEasy) return 'fillIns'
   return 'avoid'
 }
 
@@ -131,7 +133,7 @@ function SortableRow({ item, scoringModel, midEffort, midImpact, onUpdate, onDel
 
   const statusObj = STATUS_OPTIONS.find(s => s.value === item.status) || STATUS_OPTIONS[0]
   const score = item.score != null ? Math.round(item.score * 10) / 10 : 0
-  const quadrantKey = getQuadrant(item, midEffort, midImpact)
+  const quadrantKey = getQuadrant(item, midEffort, midImpact, scoringModel)
   const quadrant = QUADRANT_INFO[quadrantKey]
 
   return (

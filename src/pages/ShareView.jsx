@@ -11,10 +11,11 @@ const QUADRANT_INFO = {
   avoid:     { label: 'Avoid',     classes: 'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400' },
 }
 
-function getQuadrant(item, midEffort, midImpact) {
-  if (item.impact > midImpact && item.effort <= midEffort) return 'quickWins'
-  if (item.impact > midImpact && item.effort > midEffort) return 'bigBets'
-  if (item.impact <= midImpact && item.effort <= midEffort) return 'fillIns'
+function getQuadrant(item, midEffort, midImpact, scoringModel) {
+  const isEasy = scoringModel === 'ice' ? item.effort > midEffort : item.effort <= midEffort
+  if (item.impact > midImpact && isEasy) return 'quickWins'
+  if (item.impact > midImpact && !isEasy) return 'bigBets'
+  if (item.impact <= midImpact && isEasy) return 'fillIns'
   return 'avoid'
 }
 
@@ -167,7 +168,7 @@ export default function ShareView() {
               {items.map((item, idx) => {
                 const st = STATUS_MAP[item.status] || STATUS_MAP.backlog
                 const score = item.score != null ? Math.round(item.score * 10) / 10 : 0
-                const quadrant = QUADRANT_INFO[getQuadrant(item, midEffort, midImpact)]
+                const quadrant = QUADRANT_INFO[getQuadrant(item, midEffort, midImpact, b.scoring_model)]
                 return (
                   <div key={item.id} className="card p-4 flex items-center gap-4">
                     <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-white/[0.04] flex items-center justify-center text-sm font-medium text-slate-500 dark:text-slate-400 shrink-0">
