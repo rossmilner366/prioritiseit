@@ -3,6 +3,20 @@ import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, us
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
+const QUADRANT_INFO = {
+  quickWins: { label: 'Quick win', classes: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400' },
+  bigBets:   { label: 'Big bet',   classes: 'bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400' },
+  fillIns:   { label: 'Fill-in',   classes: 'bg-slate-100 text-slate-500 dark:bg-white/5 dark:text-slate-400' },
+  avoid:     { label: 'Avoid',     classes: 'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400' },
+}
+
+function getQuadrant(item, midEffort, midImpact) {
+  if (item.impact > midImpact && item.effort <= midEffort) return 'quickWins'
+  if (item.impact > midImpact && item.effort > midEffort) return 'bigBets'
+  if (item.impact <= midImpact && item.effort <= midEffort) return 'fillIns'
+  return 'avoid'
+}
+
 const STATUS_OPTIONS = [
   { value: 'backlog', label: 'Backlog', classes: 'bg-slate-100 text-slate-500 dark:bg-white/5 dark:text-slate-400' },
   { value: 'planned', label: 'Planned', classes: 'bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400' },
@@ -94,7 +108,7 @@ function ItemLinkEditor({ linkUrl, onSave, onClose }) {
   )
 }
 
-function SortableRow({ item, scoringModel, onUpdate, onDelete }) {
+function SortableRow({ item, scoringModel, midEffort, midImpact, onUpdate, onDelete }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id })
   const [showMenu, setShowMenu] = useState(false)
   const [showLinkEditor, setShowLinkEditor] = useState(false)
@@ -107,6 +121,8 @@ function SortableRow({ item, scoringModel, onUpdate, onDelete }) {
 
   const statusObj = STATUS_OPTIONS.find(s => s.value === item.status) || STATUS_OPTIONS[0]
   const score = item.score != null ? Math.round(item.score * 10) / 10 : 0
+  const quadrantKey = getQuadrant(item, midEffort, midImpact)
+  const quadrant = QUADRANT_INFO[quadrantKey]
 
   return (
     <tr ref={setNodeRef} style={style} className="group border-b border-slate-100 dark:border-white/[0.04] hover:bg-slate-50/50 dark:hover:bg-white/[0.02] transition-colors">
@@ -221,6 +237,9 @@ function SortableRow({ item, scoringModel, onUpdate, onDelete }) {
           </>
         )}
       </td>
+      <td className="py-3 px-2">
+        <span className={`badge text-xs ${quadrant.classes}`}>{quadrant.label}</span>
+      </td>
       <td className="py-3 px-2 w-8">
         <button
           onClick={() => { if (confirm('Delete this item?')) onDelete(item.id) }}
@@ -234,6 +253,11 @@ function SortableRow({ item, scoringModel, onUpdate, onDelete }) {
 }
 
 export default function ScoringTable({ items, scoringModel, onUpdateItem, onDeleteItem, onReorder, boardName }) {
+  const maxEffort = Math.max(5, ...items.map(d => d.effort))
+  const maxImpact = Math.max(3, ...items.map(d => d.impact))
+  const midEffort = maxEffort / 2
+  const midImpact = maxImpact / 2
+
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
@@ -431,6 +455,7 @@ export default function ScoringTable({ items, scoringModel, onUpdateItem, onDele
               </th>
               <th className="py-3 px-2 text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider w-20">Score</th>
               <th className="py-3 px-2 text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider w-32">Status</th>
+              <th className="py-3 px-2 text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider w-28">Segment</th>
               <th className="py-3 px-2 w-8" />
             </tr>
           </thead>
@@ -442,6 +467,8 @@ export default function ScoringTable({ items, scoringModel, onUpdateItem, onDele
                     key={item.id}
                     item={item}
                     scoringModel={scoringModel}
+                    midEffort={midEffort}
+                    midImpact={midImpact}
                     onUpdate={onUpdateItem}
                     onDelete={onDeleteItem}
                   />
