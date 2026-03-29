@@ -20,7 +20,7 @@
       --brand-100: #D5EFF8;
       --text: #0f172a;
       --text-secondary: #475569;
-      --text-muted: #94a3b8;
+      --text-muted: #64748b;
       --bg: #ffffff;
       --bg-subtle: #f8fafc;
       --border: #e2e8f0;
@@ -78,7 +78,7 @@
     .status-badge { font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 4px; }
     .status-p { background: #eff6ff; color: #2563eb; }
     .status-ip { background: #fffbeb; color: #d97706; }
-    .status-b { background: #f8fafc; color: #64748b; }
+    .status-b { background: #f8fafc; color: #4b5563; }
 
     /* FEATURES */
     .features { padding: 100px 0; }
@@ -140,7 +140,7 @@
     /* CTA */
     .cta { padding: 80px 0; text-align: center; background: linear-gradient(135deg, var(--brand) 0%, var(--brand-deep) 100%); color: white; }
     .cta h2 { font-size: clamp(28px, 3.5vw, 40px); font-weight: 700; letter-spacing: -0.02em; margin-bottom: 12px; }
-    .cta p { font-size: 17px; opacity: 0.8; margin-bottom: 32px; }
+    .cta p { font-size: 17px; color: rgba(255,255,255,0.92); margin-bottom: 32px; }
     .cta .btn-cta { background: white; color: var(--brand-deep); }
     .cta .btn-cta:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
 
@@ -158,6 +158,27 @@
     .hero-buttons { animation-delay: 0.3s; }
     .hero-visual { animation: fadeUp 0.8s ease-out 0.4s both; }
 
+    /* SKIP LINK */
+    .skip-link { position: absolute; top: -100%; left: 16px; z-index: 9999; background: var(--brand); color: white; padding: 10px 20px; border-radius: 0 0 8px 8px; font-weight: 600; font-size: 14px; }
+    .skip-link:focus { top: 0; }
+
+    /* FOCUS STYLES */
+    :focus-visible { outline: 3px solid var(--brand); outline-offset: 3px; border-radius: 4px; }
+
+    /* SCREEN READER ONLY */
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+    /* DISABLED BUTTON */
+    .price-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+    .price-btn:disabled:hover { transform: none; box-shadow: none; border-color: var(--border); color: var(--text); background: white; }
+
+    /* REDUCED MOTION */
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .hero h1, .hero p, .hero-buttons, .hero-badge, .hero-visual { animation: none; }
+      .feature-card, .btn, .btn-primary, .btn-cta, .btn-outline-hero { transition: none; }
+    }
+
     /* RESPONSIVE */
     @media (max-width: 768px) {
       .nav-links a:not(.btn) { display: none; }
@@ -170,12 +191,13 @@
   </style>
 </head>
 <body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
 
 <!-- NAV -->
-<nav>
+<nav aria-label="Primary navigation">
   <div class="container nav-inner">
-    <a href="#" class="nav-logo">
-      <svg viewBox="0 0 512 512"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#2BA8D4"/><stop offset="100%" stop-color="#1E7DA0"/></linearGradient></defs><rect width="512" height="512" rx="108" fill="url(#lg)"/><rect x="120" y="148" width="56" height="248" rx="28" fill="white" opacity="0.95"/><rect x="228" y="208" width="56" height="188" rx="28" fill="white" opacity="0.65"/><rect x="336" y="268" width="56" height="128" rx="28" fill="white" opacity="0.35"/><path d="M148 128 L148 100 L128 120 M148 100 L168 120" stroke="white" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.95"/></svg>
+    <a href="/" class="nav-logo" aria-label="PrioritiseIt home">
+      <svg viewBox="0 0 512 512" aria-hidden="true" focusable="false"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#2BA8D4"/><stop offset="100%" stop-color="#1E7DA0"/></linearGradient></defs><rect width="512" height="512" rx="108" fill="url(#lg)"/><rect x="120" y="148" width="56" height="248" rx="28" fill="white" opacity="0.95"/><rect x="228" y="208" width="56" height="188" rx="28" fill="white" opacity="0.65"/><rect x="336" y="268" width="56" height="128" rx="28" fill="white" opacity="0.35"/><path d="M148 128 L148 100 L128 120 M148 100 L168 120" stroke="white" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.95"/></svg>
       <span>Prioritise<span class="it">It</span></span>
     </a>
     <div class="nav-links">
@@ -187,10 +209,13 @@
   </div>
 </nav>
 
+<!-- MAIN CONTENT -->
+<main id="main-content">
+
 <!-- HERO -->
 <section class="hero">
   <div class="container">
-    <div class="hero-badge">New — now with team collaboration</div>
+    <p class="hero-badge" role="note">New — now with team collaboration</p>
     <h1>Score features.<br>Share the <span class="accent">why</span>.</h1>
     <p>The fastest way for product teams to go from a list of ideas to a stakeholder-ready priority view. RICE, ICE &amp; WSJF scoring, one-click sharing, no spreadsheet required.</p>
     <div class="hero-buttons">
@@ -199,7 +224,7 @@
     </div>
 
     <div class="hero-visual">
-      <div class="mock">
+      <div class="mock" aria-hidden="true">
         <div class="mock-header">
           <span class="mock-title">Q2 Shopfront Roadmap</span>
           <div class="mock-badges">
@@ -224,37 +249,37 @@
 <!-- FEATURES -->
 <section class="features" id="features">
   <div class="container">
-    <div class="section-label">Features</div>
-    <div class="section-title">Everything you need.<br>Nothing you don't.</div>
-    <div class="section-desc">Purpose-built for prioritisation. Not a project management suite, not a roadmap tool — just the scoring and sharing part, done properly.</div>
+    <p class="section-label">Features</p>
+    <h2 class="section-title">Everything you need.<br>Nothing you don't.</h2>
+    <p class="section-desc">Purpose-built for prioritisation. Not a project management suite, not a roadmap tool — just the scoring and sharing part, done properly.</p>
     <div class="features-grid">
       <div class="feature-card">
-        <div class="feature-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg></div>
+        <div class="feature-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" focusable="false"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg></div>
         <h3>RICE, ICE &amp; WSJF scoring</h3>
         <p>Choose your framework per board. Auto-calculated scores with live re-ranking. Built-in scoring guide so your team scores consistently.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg></div>
+        <div class="feature-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" focusable="false"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg></div>
         <h3>Stakeholder sharing</h3>
         <p>One click generates a read-only link. Stakeholders see the ranked list and matrix — no login required. Revoke access any time.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div>
+        <div class="feature-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" focusable="false"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div>
         <h3>Impact/effort matrix</h3>
         <p>Visual 2&times;2 scatter plot with Quick Wins, Big Bets, Fill-ins, and Avoid quadrants. Export as PNG for your slide deck.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg></div>
+        <div class="feature-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" focusable="false"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg></div>
         <h3>Team collaboration</h3>
         <p>Invite colleagues as editors or viewers. Score features together, drag to reorder, and see changes in real time.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/></svg></div>
+        <div class="feature-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" focusable="false"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/></svg></div>
         <h3>Drag-and-drop override</h3>
         <p>Override the calculated ranking when you know something the formula doesn't. Pinned items are visually flagged so stakeholders can see the judgement call.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg></div>
+        <div class="feature-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" focusable="false"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg></div>
         <h3>Link to specs &amp; designs</h3>
         <p>Attach a URL to each feature — Figma files, Google Docs, Confluence pages, PowerPoint decks. Everything in context.</p>
       </div>
@@ -265,8 +290,8 @@
 <!-- HOW IT WORKS -->
 <section class="how">
   <div class="container">
-    <div class="section-label" style="text-align:center;">How it works</div>
-    <div class="section-title" style="text-align:center;">Three steps to clarity</div>
+    <p class="section-label" style="text-align:center;">How it works</p>
+    <h2 class="section-title" style="text-align:center;">Three steps to clarity</h2>
     <div class="steps">
       <div class="step">
         <div class="step-num">1</div>
@@ -290,9 +315,9 @@
 <!-- PRICING -->
 <section class="pricing" id="pricing">
   <div class="container">
-    <div class="section-label" style="text-align:center;">Pricing</div>
-    <div class="section-title" style="text-align:center;">Simple, transparent pricing</div>
-    <div class="section-desc" style="text-align:center;margin:16px auto 0;">Start free. Upgrade when your team grows.</div>
+    <p class="section-label" style="text-align:center;">Pricing</p>
+    <h2 class="section-title" style="text-align:center;">Simple, transparent pricing</h2>
+    <p class="section-desc" style="text-align:center;margin:16px auto 0;">Start free. Upgrade when your team grows.</p>
     <div class="pricing-grid">
 
       <!-- FREE -->
@@ -301,11 +326,11 @@
         <div class="price-amount"><span class="currency">£</span>0</div>
         <div class="price-desc">For solo PMs getting started with structured prioritisation.</div>
         <ul class="price-features">
-          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>1 board, up to 15 items</li>
-          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>RICE, ICE &amp; WSJF scoring</li>
-          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Shareable stakeholder link</li>
-          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>2&times;2 impact/effort matrix</li>
-          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>PNG export</li>
+          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" focusable="false"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>1 board, up to 15 items</li>
+          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" focusable="false"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>RICE, ICE &amp; WSJF scoring</li>
+          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" focusable="false"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Shareable stakeholder link</li>
+          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" focusable="false"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>2&times;2 impact/effort matrix</li>
+          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" focusable="false"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>PNG export</li>
         </ul>
         <a href="https://prioritiseit.netlify.app" class="btn price-btn price-btn-free">Get started</a>
       </div>
@@ -316,12 +341,12 @@
         <div class="price-amount"><span class="currency">£</span>6<span class="period">/user/mo</span></div>
         <div class="price-desc">For product teams who need collaboration and unlimited boards.</div>
         <ul class="price-features">
-          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Unlimited boards &amp; items</li>
-          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Team collaboration (editors &amp; viewers)</li>
-          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Link attachments on items</li>
-          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>CSV export</li>
-          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Board descriptions</li>
-          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Priority support</li>
+          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" focusable="false"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Unlimited boards &amp; items</li>
+          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" focusable="false"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Team collaboration (editors &amp; viewers)</li>
+          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" focusable="false"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Link attachments on items</li>
+          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" focusable="false"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>CSV export</li>
+          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" focusable="false"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Board descriptions</li>
+          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" focusable="false"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Priority support</li>
         </ul>
         <a href="https://prioritiseit.netlify.app" class="btn price-btn price-btn-pro">Start 14-day free trial</a>
       </div>
@@ -332,14 +357,14 @@
         <div class="price-amount"><span class="currency">£</span>12<span class="period">/user/mo</span></div>
         <div class="price-desc">For organisations with multiple product teams and advanced needs.</div>
         <ul class="price-features">
-          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Everything in Pro</li>
-          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Custom scoring frameworks</li>
-          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Decision changelog</li>
-          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Jira / Linear import</li>
-          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>SSO &amp; API access</li>
-          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Admin controls &amp; audit log</li>
+          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" focusable="false"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Everything in Pro</li>
+          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" focusable="false"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Custom scoring frameworks</li>
+          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" focusable="false"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Decision changelog</li>
+          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" focusable="false"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Jira / Linear import</li>
+          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" focusable="false"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>SSO &amp; API access</li>
+          <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" focusable="false"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Admin controls &amp; audit log</li>
         </ul>
-        <a href="#" class="btn price-btn price-btn-team">Coming soon</a>
+        <button type="button" class="btn price-btn price-btn-team" disabled aria-disabled="true">Coming soon</button>
       </div>
     </div>
     <p class="annual-note">Annual billing available at 20% discount. All prices exclude VAT.</p>
@@ -349,18 +374,18 @@
 <!-- COMPARE -->
 <section class="compare" id="compare">
   <div class="container">
-    <div class="section-title" style="text-align:center;">How we compare</div>
+    <h2 class="section-title" style="text-align:center;">How we compare</h2>
     <div class="compare-table-wrap">
       <table class="compare-table">
         <thead>
           <tr><th>Tool</th><th>Price</th><th>RICE scoring</th><th>Stakeholder link</th><th>Collaboration</th></tr>
         </thead>
         <tbody>
-          <tr class="highlight"><td class="tool-name">PrioritiseIt</td><td class="price-col">Free / £6</td><td>&#10003;</td><td>&#10003;</td><td>&#10003;</td></tr>
-          <tr><td class="tool-name">Airfocus</td><td class="price-col">£59+/mo</td><td>&#10003;</td><td>&#10005;</td><td>&#10003;</td></tr>
-          <tr><td class="tool-name">Productboard</td><td class="price-col">£25+/mo</td><td>Legacy only</td><td>&#10005;</td><td>&#10003;</td></tr>
-          <tr><td class="tool-name">Google Sheets</td><td class="price-col">Free</td><td>Manual</td><td>&#10005;</td><td>&#10003;</td></tr>
-          <tr><td class="tool-name">Free calculators</td><td class="price-col">Free</td><td>&#10003;</td><td>&#10005;</td><td>&#10005;</td></tr>
+          <tr class="highlight"><td class="tool-name">PrioritiseIt</td><td class="price-col">Free / £6</td><td><span aria-hidden="true">&#10003;</span><span class="sr-only">Yes</span></td><td><span aria-hidden="true">&#10003;</span><span class="sr-only">Yes</span></td><td><span aria-hidden="true">&#10003;</span><span class="sr-only">Yes</span></td></tr>
+          <tr><td class="tool-name">Airfocus</td><td class="price-col">£59+/mo</td><td><span aria-hidden="true">&#10003;</span><span class="sr-only">Yes</span></td><td><span aria-hidden="true">&#10005;</span><span class="sr-only">No</span></td><td><span aria-hidden="true">&#10003;</span><span class="sr-only">Yes</span></td></tr>
+          <tr><td class="tool-name">Productboard</td><td class="price-col">£25+/mo</td><td>Legacy only</td><td><span aria-hidden="true">&#10005;</span><span class="sr-only">No</span></td><td><span aria-hidden="true">&#10003;</span><span class="sr-only">Yes</span></td></tr>
+          <tr><td class="tool-name">Google Sheets</td><td class="price-col">Free</td><td>Manual</td><td><span aria-hidden="true">&#10005;</span><span class="sr-only">No</span></td><td><span aria-hidden="true">&#10003;</span><span class="sr-only">Yes</span></td></tr>
+          <tr><td class="tool-name">Free calculators</td><td class="price-col">Free</td><td><span aria-hidden="true">&#10003;</span><span class="sr-only">Yes</span></td><td><span aria-hidden="true">&#10005;</span><span class="sr-only">No</span></td><td><span aria-hidden="true">&#10005;</span><span class="sr-only">No</span></td></tr>
         </tbody>
       </table>
     </div>
@@ -376,12 +401,14 @@
   </div>
 </section>
 
+</main>
+
 <!-- FOOTER -->
 <footer>
   <div class="container footer-inner">
-    <div class="nav-logo" style="font-size:15px;">
-      <svg viewBox="0 0 512 512" width="24" height="24"><defs><linearGradient id="lg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#2BA8D4"/><stop offset="100%" stop-color="#1E7DA0"/></linearGradient></defs><rect width="512" height="512" rx="108" fill="url(#lg2)"/><rect x="120" y="148" width="56" height="248" rx="28" fill="white" opacity="0.95"/><rect x="228" y="208" width="56" height="188" rx="28" fill="white" opacity="0.65"/><rect x="336" y="268" width="56" height="128" rx="28" fill="white" opacity="0.35"/></svg>
-      <span>Prioritise<span class="it">It</span></span>
+    <div class="nav-logo" style="font-size:15px;" aria-label="PrioritiseIt">
+      <svg viewBox="0 0 512 512" width="24" height="24" aria-hidden="true" focusable="false"><defs><linearGradient id="lg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#2BA8D4"/><stop offset="100%" stop-color="#1E7DA0"/></linearGradient></defs><rect width="512" height="512" rx="108" fill="url(#lg2)"/><rect x="120" y="148" width="56" height="248" rx="28" fill="white" opacity="0.95"/><rect x="228" y="208" width="56" height="188" rx="28" fill="white" opacity="0.65"/><rect x="336" y="268" width="56" height="128" rx="28" fill="white" opacity="0.35"/></svg>
+      <span aria-hidden="true">Prioritise<span class="it">It</span></span>
     </div>
     <div class="footer-text">&copy; 2026 PrioritiseIt. Made for product teams who ship.</div>
   </div>
