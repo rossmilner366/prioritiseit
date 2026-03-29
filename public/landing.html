@@ -36,19 +36,21 @@
     .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 64px; }
     .nav-logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; }
     .nav-logo svg { width: 32px; height: 32px; }
-    .nav-logo .it { color: var(--brand); }
+    .nav-logo .it { color: var(--brand-deep); }
     .nav-links { display: flex; align-items: center; gap: 32px; }
     .nav-links a { font-size: 14px; font-weight: 500; color: var(--text-secondary); transition: color 0.15s; }
     .nav-links a:hover { color: var(--text); }
+    .nav-links a.btn-primary { color: white; }
+    .nav-links a.btn-primary:hover { color: white; }
     .btn { display: inline-flex; align-items: center; gap: 8px; font-family: inherit; font-weight: 600; border: none; cursor: pointer; transition: all 0.15s; }
-    .btn-primary { background: var(--brand); color: white; padding: 10px 24px; border-radius: 10px; font-size: 15px; }
-    .btn-primary:hover { background: var(--brand-dark); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(37,150,190,0.25); }
+    .btn-primary { background: var(--brand-deep); color: white; padding: 10px 24px; border-radius: 10px; font-size: 15px; }
+    .btn-primary:hover { background: #0f4d64; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(23,100,130,0.35); }
     .btn-ghost { background: none; color: var(--text-secondary); padding: 10px 20px; border-radius: 10px; font-size: 14px; }
     .btn-ghost:hover { background: var(--bg-subtle); color: var(--text); }
     .btn-outline-hero { background: white; color: var(--text); padding: 14px 28px; border-radius: 12px; font-size: 16px; border: 1px solid var(--border); }
     .btn-outline-hero:hover { border-color: var(--brand); color: var(--brand); transform: translateY(-1px); }
-    .btn-cta { background: var(--brand); color: white; padding: 14px 32px; border-radius: 12px; font-size: 16px; }
-    .btn-cta:hover { background: var(--brand-dark); transform: translateY(-1px); box-shadow: 0 4px 20px rgba(37,150,190,0.3); }
+    .btn-cta { background: var(--brand-deep); color: white; padding: 14px 32px; border-radius: 12px; font-size: 16px; }
+    .btn-cta:hover { background: #0f4d64; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(23,100,130,0.4); }
 
     /* HERO */
     .hero { padding: 140px 0 80px; text-align: center; position: relative; overflow: hidden; }
@@ -82,7 +84,7 @@
 
     /* FEATURES */
     .features { padding: 100px 0; }
-    .section-label { font-size: 13px; font-weight: 600; color: var(--brand); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; }
+    .section-label { font-size: 13px; font-weight: 600; color: var(--brand-deep); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; }
     .section-title { font-size: clamp(28px, 3.5vw, 40px); font-weight: 700; letter-spacing: -0.02em; margin-bottom: 16px; }
     .section-desc { font-size: 17px; color: var(--text-secondary); max-width: 520px; line-height: 1.7; margin-bottom: 56px; }
     .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
@@ -118,8 +120,8 @@
     .price-btn { display: block; width: 100%; text-align: center; padding: 12px; border-radius: 10px; font-family: inherit; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
     .price-btn-free { background: var(--bg-subtle); color: var(--text); border: 1px solid var(--border); }
     .price-btn-free:hover { background: var(--border-light); border-color: var(--border); }
-    .price-btn-pro { background: var(--brand); color: white; border: none; }
-    .price-btn-pro:hover { background: var(--brand-dark); }
+    .price-btn-pro { background: var(--brand-deep); color: white; border: none; }
+    .price-btn-pro:hover { background: #0f4d64; }
     .price-btn-team { background: white; color: var(--text); border: 1px solid var(--border); }
     .price-btn-team:hover { border-color: var(--brand); color: var(--brand); }
     .annual-note { text-align: center; margin-top: 20px; font-size: 13px; color: var(--text-muted); }
@@ -375,7 +377,7 @@
 <section class="compare" id="compare">
   <div class="container">
     <h2 class="section-title" style="text-align:center;">How we compare</h2>
-    <div class="compare-table-wrap">
+    <div class="compare-table-wrap" tabindex="0" role="region" aria-label="Tool comparison table">
       <table class="compare-table">
         <thead>
           <tr><th>Tool</th><th>Price</th><th>RICE scoring</th><th>Stakeholder link</th><th>Collaboration</th></tr>
@@ -406,9 +408,9 @@
 <!-- FOOTER -->
 <footer>
   <div class="container footer-inner">
-    <div class="nav-logo" style="font-size:15px;" aria-label="PrioritiseIt">
+    <div class="nav-logo" style="font-size:15px;">
       <svg viewBox="0 0 512 512" width="24" height="24" aria-hidden="true" focusable="false"><defs><linearGradient id="lg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#2BA8D4"/><stop offset="100%" stop-color="#1E7DA0"/></linearGradient></defs><rect width="512" height="512" rx="108" fill="url(#lg2)"/><rect x="120" y="148" width="56" height="248" rx="28" fill="white" opacity="0.95"/><rect x="228" y="208" width="56" height="188" rx="28" fill="white" opacity="0.65"/><rect x="336" y="268" width="56" height="128" rx="28" fill="white" opacity="0.35"/></svg>
-      <span aria-hidden="true">Prioritise<span class="it">It</span></span>
+      <span>Prioritise<span class="it">It</span></span>
     </div>
     <div class="footer-text">&copy; 2026 PrioritiseIt. Made for product teams who ship.</div>
   </div>
