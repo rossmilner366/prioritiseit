@@ -207,7 +207,7 @@ export default function MatrixView({ items, boardName, scoringModel = 'rice' }) 
             >
               <div className="min-w-0">
                 <p className={`text-sm font-medium ${quad.textClass}`}>{quad.label}</p>
-                <p className="text-xs text-slate-400 dark:text-slate-500 truncate">{quad.subtitles[scoringModel] ?? quad.subtitles.default}</p>
+                <p className="text-xs text-slate-400 dark:text-slate-300 truncate">{quad.subtitles[scoringModel] ?? quad.subtitles.default}</p>
               </div>
             </div>
           ))}
