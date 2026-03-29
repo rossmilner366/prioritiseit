@@ -2,10 +2,10 @@ import { useRef, useCallback } from 'react'
 import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceArea, ReferenceLine, Label } from 'recharts'
 
 const QUADRANTS = [
-  { key: 'quickWins', label: 'Quick wins', subtitles: { default: 'High impact, low effort', ice: 'High impact, high ease' }, light: 'rgba(16, 185, 129, 0.15)', dark: 'rgba(16, 185, 129, 0.12)', swatchLight: '#d1fae5', swatchDark: 'rgba(16, 185, 129, 0.35)', textClass: 'text-emerald-700 dark:text-emerald-400' },
-  { key: 'bigBets', label: 'Big bets', subtitles: { default: 'High impact, high effort', ice: 'High impact, low ease' }, light: 'rgba(59, 130, 246, 0.12)', dark: 'rgba(59, 130, 246, 0.10)', swatchLight: '#dbeafe', swatchDark: 'rgba(59, 130, 246, 0.35)', textClass: 'text-blue-700 dark:text-blue-400' },
-  { key: 'fillIns', label: 'Fill-ins', subtitles: { default: 'Low impact, low effort', ice: 'Low impact, high ease' }, light: 'rgba(148, 163, 184, 0.08)', dark: 'rgba(255, 255, 255, 0.04)', swatchLight: '#f1f5f9', swatchDark: 'rgba(255, 255, 255, 0.10)', textClass: 'text-slate-500 dark:text-slate-400' },
-  { key: 'avoid', label: 'Avoid', subtitles: { default: 'Low impact, high effort', ice: 'Low impact, low ease' }, light: 'rgba(239, 68, 68, 0.12)', dark: 'rgba(239, 68, 68, 0.10)', swatchLight: '#fee2e2', swatchDark: 'rgba(239, 68, 68, 0.35)', textClass: 'text-red-700 dark:text-red-400' },
+  { key: 'quickWins', label: 'Quick wins', subtitles: { default: 'High impact, low effort', ice: 'High impact, high ease' }, light: 'rgba(16, 185, 129, 0.15)', dark: 'rgba(16, 185, 129, 0.25)', swatchLight: '#d1fae5', swatchDark: 'rgba(16, 185, 129, 0.35)', textClass: 'text-emerald-700 dark:text-emerald-400' },
+  { key: 'bigBets', label: 'Big bets', subtitles: { default: 'High impact, high effort', ice: 'High impact, low ease' }, light: 'rgba(59, 130, 246, 0.12)', dark: 'rgba(59, 130, 246, 0.22)', swatchLight: '#dbeafe', swatchDark: 'rgba(59, 130, 246, 0.35)', textClass: 'text-blue-700 dark:text-blue-400' },
+  { key: 'fillIns', label: 'Fill-ins', subtitles: { default: 'Low impact, low effort', ice: 'Low impact, high ease' }, light: 'rgba(148, 163, 184, 0.08)', dark: 'rgba(148, 163, 184, 0.12)', swatchLight: '#f1f5f9', swatchDark: 'rgba(255, 255, 255, 0.10)', textClass: 'text-slate-500 dark:text-slate-400' },
+  { key: 'avoid', label: 'Avoid', subtitles: { default: 'Low impact, high effort', ice: 'Low impact, low ease' }, light: 'rgba(239, 68, 68, 0.12)', dark: 'rgba(239, 68, 68, 0.22)', swatchLight: '#fee2e2', swatchDark: 'rgba(239, 68, 68, 0.35)', textClass: 'text-red-700 dark:text-red-400' },
 ]
 
 function jitterOverlaps(items, effortRange, impactRange) {
