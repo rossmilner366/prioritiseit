@@ -168,7 +168,7 @@ export default function ShareView() {
               {items.map((item, idx) => {
                 const st = STATUS_MAP[item.status] || STATUS_MAP.backlog
                 const score = item.score != null ? Math.round(item.score * 10) / 10 : 0
-                const quadrant = QUADRANT_INFO[getQuadrant(item, midEffort, midImpact, b.scoring_model)]
+                const quadrant = QUADRANT_INFO[getQuadrant(item, midEffort, midImpact, board.scoring_model)]
                 return (
                   <div key={item.id} className="card p-4 flex items-center gap-4">
                     <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-white/[0.04] flex items-center justify-center text-sm font-medium text-slate-500 dark:text-slate-400 shrink-0">
