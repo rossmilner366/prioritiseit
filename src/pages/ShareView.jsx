@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { decryptText } from '../lib/crypto'
 import { LogoMark } from '../components/Logo'
 import MatrixView from '../components/MatrixView'
 
@@ -59,7 +60,7 @@ export default function ShareView() {
         return
       }
 
-      const b = boards[0]
+      const b = { ...boards[0], name: await decryptText(boards[0].name) }
       setBoard(b)
 
       const { data: itemData } = await supabase
@@ -69,7 +70,8 @@ export default function ShareView() {
         .order('manual_rank', { ascending: true, nullsFirst: false })
         .order('score', { ascending: false })
 
-      const processedItems = (itemData || []).map(item => {
+      const processedItems = await Promise.all((itemData || []).map(async item => {
+        item = { ...item, title: await decryptText(item.title) }
         if (b.scoring_model === 'wsjf') {
           return { ...item, score: item.effort > 0 ? (item.reach + item.impact + item.confidence) / item.effort : 0 }
         }
@@ -77,7 +79,7 @@ export default function ShareView() {
           return { ...item, score: item.impact * item.confidence * item.effort }
         }
         return item
-      })
+      }))
       setItems(processedItems)
       setLoading(false)
     }

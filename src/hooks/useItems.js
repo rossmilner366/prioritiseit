@@ -1,5 +1,10 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
+import { encryptText, decryptText } from '../lib/crypto'
+
+async function decryptItem(item) {
+  return { ...item, title: await decryptText(item.title) }
+}
 
 export function useItems(boardId) {
   const [items, setItems] = useState([])
@@ -16,7 +21,8 @@ export function useItems(boardId) {
       .order('score', { ascending: false })
 
     if (!error && data) {
-      setItems(data)
+      const decrypted = await Promise.all(data.map(decryptItem))
+      setItems(decrypted.sort(sortItems))
     }
     setLoading(false)
   }, [boardId])
@@ -33,27 +39,31 @@ export function useItems(boardId) {
       .from('items')
       .insert({
         board_id: boardId,
-        title,
+        title: await encryptText(title),
         ...defaults,
         status: 'backlog'
       })
       .select()
       .single()
     if (!error) {
-      setItems(prev => [...prev, data].sort(sortItems))
+      const decrypted = await decryptItem(data)
+      setItems(prev => [...prev, decrypted].sort(sortItems))
     }
     return { data, error }
   }, [boardId])
 
   const updateItem = useCallback(async (id, updates) => {
+    const toSave = { ...updates }
+    if (toSave.title) toSave.title = await encryptText(toSave.title)
     const { data, error } = await supabase
       .from('items')
-      .update(updates)
+      .update(toSave)
       .eq('id', id)
       .select()
       .single()
     if (!error) {
-      setItems(prev => prev.map(i => i.id === id ? data : i).sort(sortItems))
+      const decrypted = await decryptItem(data)
+      setItems(prev => prev.map(i => i.id === id ? decrypted : i).sort(sortItems))
     }
     return { data, error }
   }, [])

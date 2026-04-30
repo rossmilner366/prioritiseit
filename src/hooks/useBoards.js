@@ -1,5 +1,10 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
+import { encryptText, decryptText } from '../lib/crypto'
+
+async function decryptBoard(board) {
+  return { ...board, name: await decryptText(board.name) }
+}
 
 export function useBoards(userId) {
   const [boards, setBoards] = useState([])
@@ -18,7 +23,8 @@ export function useBoards(userId) {
       .order('updated_at', { ascending: false })
 
     if (!ownedErr && owned) {
-      setBoards(owned.map(b => ({
+      const decrypted = await Promise.all(owned.map(decryptBoard))
+      setBoards(decrypted.map(b => ({
         ...b,
         item_count: b.items?.[0]?.count || 0,
         _role: 'owner',
@@ -42,7 +48,8 @@ export function useBoards(userId) {
         .order('updated_at', { ascending: false })
 
       if (shared) {
-        setSharedBoards(shared.map(b => ({
+        const decrypted = await Promise.all(shared.map(decryptBoard))
+        setSharedBoards(decrypted.map(b => ({
           ...b,
           item_count: b.items?.[0]?.count || 0,
           _role: roleMap[b.id] || 'viewer',
@@ -60,25 +67,29 @@ export function useBoards(userId) {
   const createBoard = useCallback(async (name, scoring_model = 'rice') => {
     const { data, error } = await supabase
       .from('boards')
-      .insert({ name, scoring_model, owner_id: userId })
+      .insert({ name: await encryptText(name), scoring_model, owner_id: userId })
       .select()
       .single()
     if (!error) {
-      setBoards(prev => [{ ...data, item_count: 0, _role: 'owner' }, ...prev])
+      const decrypted = await decryptBoard(data)
+      setBoards(prev => [{ ...decrypted, item_count: 0, _role: 'owner' }, ...prev])
     }
     return { data, error }
   }, [userId])
 
   const updateBoard = useCallback(async (id, updates) => {
+    const toSave = { ...updates }
+    if (toSave.name) toSave.name = await encryptText(toSave.name)
     const { data, error } = await supabase
       .from('boards')
-      .update(updates)
+      .update(toSave)
       .eq('id', id)
       .select()
       .single()
     if (!error) {
-      setBoards(prev => prev.map(b => b.id === id ? { ...b, ...data } : b))
-      setSharedBoards(prev => prev.map(b => b.id === id ? { ...b, ...data } : b))
+      const decrypted = await decryptBoard(data)
+      setBoards(prev => prev.map(b => b.id === id ? { ...b, ...decrypted } : b))
+      setSharedBoards(prev => prev.map(b => b.id === id ? { ...b, ...decrypted } : b))
     }
     return { data, error }
   }, [])
